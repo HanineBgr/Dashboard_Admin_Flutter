@@ -1,3 +1,5 @@
+import 'package:admin/models/Panier.dart';
+import 'package:admin/models/Reservation.dart';
 import 'package:admin/screens/dashboard/components/recent_files.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -53,12 +55,21 @@ class SideMenu extends StatelessWidget {
           DrawerListTile(
             title: "Réservation",
             svgSrc: "assets/icons/menu_notification.svg",
-            press: () {},
+           press:  () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ReservationPage()),
+    ); },
           ),
           DrawerListTile(
             title: "Panier",
             svgSrc: "assets/icons/menu_notification.svg",
-            press: () {},
+            press:  () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PanierPage()),
+    );
+  },
           ),
           DrawerListTile(
             title: "Profile",

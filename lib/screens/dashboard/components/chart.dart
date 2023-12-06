@@ -35,7 +35,7 @@ class Chart extends StatelessWidget {
                         height: 0.5,
                       ),
                 ),
-                Text("of 128GB")
+                Text("of articles")
               ],
             ),
           ),

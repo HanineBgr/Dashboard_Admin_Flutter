@@ -1,3 +1,5 @@
+import 'package:admin/screens/dashboard/components/recent_Categories.dart';
+import 'package:admin/screens/dashboard/components/recent_articles.dart';
 import 'package:admin/screens/dashboard/components/recent_files.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,24 +23,34 @@ class SideMenu extends StatelessWidget {
             press: () {},
           ),
          DrawerListTile(
-  title: "Utilisateurs",
-  svgSrc: "assets/icons/menu_tran.svg",
-  press: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => RecentFiles()),
+          title: "Utilisateurs",
+          svgSrc: "assets/icons/menu_profile.svg",
+          press: () {
+          Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => RecentFiles()),
     );
   },
 ),
           DrawerListTile(
             title: "Catégories",
             svgSrc: "assets/icons/menu_task.svg",
-            press: () {},
+            press: () {
+               Navigator.push(
+               context,
+               MaterialPageRoute(builder: (context) => RecentCategories()),
+    );
+            },
           ),
           DrawerListTile(
             title: "Articles",
             svgSrc: "assets/icons/menu_doc.svg",
-            press: () {},
+            press: () {
+               Navigator.push(
+               context,
+               MaterialPageRoute(builder: (context) => RecentArticles()),
+    );
+            },
           ),
           DrawerListTile(
             title: "Evenements",

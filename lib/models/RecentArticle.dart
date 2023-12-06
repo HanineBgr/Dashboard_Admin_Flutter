@@ -1,11 +1,11 @@
-class RecentFile {
+class RecentArticle{
   final String? id ,Nom, Adresse, Adresse_mail, telephone ,Role  ;
 
-  RecentFile( { this.id, this.Nom, this.Adresse, this .Adresse_mail ,this.telephone, this.Role,  });
+  RecentArticle( { this.id, this.Nom, this.Adresse, this .Adresse_mail ,this.telephone, this.Role,  });
 }
 
-List demoRecentFiles = [
-  RecentFile(
+List demoRecentArticles = [
+  RecentArticle(
   id: "1",
   Nom: "Hanine Bouguerra",
   Adresse: "Eljem",
@@ -13,7 +13,7 @@ List demoRecentFiles = [
   telephone: "93159203",
   Role: "Client"
   ),
-  RecentFile(
+  RecentArticle(
    id: "2",
    Nom: "Mariem",
    Adresse: "Bardo-Tunis",
@@ -21,15 +21,15 @@ List demoRecentFiles = [
    telephone: "95463820",
    Role: "Client"
   ),
- RecentFile(
+ RecentArticle(
    id: "3",
    Nom: "Futur génération",
-   Adresse: "Bizerte",
-   Adresse_mail: "futur.generation@esprit.tn",
+   Adresse: "Bardo-Tunis",
+   Adresse_mail: "mariem.marsaoui@esprit.tn",
    telephone: "95463820",
    Role: "Organisation"
   ),
-  RecentFile(
+  RecentArticle(
    id: "4",
    Nom: "CRT ",
    Adresse: "Tunis",

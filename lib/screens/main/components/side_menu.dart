@@ -1,5 +1,4 @@
 import 'package:admin/screens/dashboard/components/recent_files.dart';
-import 'package:admin/screens/dashboard/components/storage_details.dart';
 import 'package:admin/screens/dashboard/dashboard_Pc.dart';
 import 'package:admin/screens/dashboard/dashboard_livraison.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +52,16 @@ DrawerListTile(
     );
   },
 ),
+/*DrawerListTile(
+  title: "Map",
+  svgSrc: "",
+  press: (){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context)=> MapSample()),
+    );
+  },
+),*/
         /* DrawerListTile(
   title: "Livraison",
   svgSrc: "assets/icons/menu_tran.svg",
@@ -78,11 +87,11 @@ DrawerListTile(
             svgSrc: "assets/icons/menu_store.svg",
             press: () {},
           ),
-           DrawerListTile(
+          /* DrawerListTile(
             title: "Point de Collecte",
             svgSrc: "assets/icons/menu_",
             press: () {},
-          ),
+          ),*/
           DrawerListTile(
             title: "Réservation",
             svgSrc: "assets/icons/menu_notification.svg",

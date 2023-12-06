@@ -1,5 +1,7 @@
 import 'package:admin/screens/dashboard/components/recent_files.dart';
 import 'package:admin/screens/dashboard/components/storage_details.dart';
+import 'package:admin/screens/dashboard/dashboard_Pc.dart';
+import 'package:admin/screens/dashboard/dashboard_livraison.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -31,7 +33,27 @@ class SideMenu extends StatelessWidget {
     );
   },
 ),
-         DrawerListTile(
+DrawerListTile(
+  title: "Livraison",
+  svgSrc: "",
+  press: (){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context)=> DashboardLivraison()),
+    );
+  },
+),
+DrawerListTile(
+  title: "Point Collecte",
+  svgSrc: "",
+  press: (){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context)=> DashboardPC()),
+    );
+  },
+),
+        /* DrawerListTile(
   title: "Livraison",
   svgSrc: "assets/icons/menu_tran.svg",
   press: () {
@@ -40,7 +62,7 @@ class SideMenu extends StatelessWidget {
       MaterialPageRoute(builder: (context) => StorageDetails()),
     );
   },
-),
+),*/
           DrawerListTile(
             title: "Catégories",
             svgSrc: "assets/icons/menu_task.svg",

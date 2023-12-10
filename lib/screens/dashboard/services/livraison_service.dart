@@ -1,21 +1,4 @@
-// livraison_service.dart
-/*import 'dart:convert';
-import 'package:admin/models/livraison.dart';
-import 'package:http/http.dart' as http;
 
-class LivraisonService {
-  Future<List<Livraison>> getLivraisons() async {
-    final response = await http.get(Uri.parse('http://localhost:5000/livraison'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((item) => Livraison.fromJson(item)).toList();
-    } else {
-      throw Exception('Erreur lors de la récupération des livraisons');
-    }
-  }
-}
-*/
 import 'dart:convert';
 import 'package:admin/models/livraison.dart';
 import 'package:http/http.dart' as http;

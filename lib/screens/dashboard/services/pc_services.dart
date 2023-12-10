@@ -43,4 +43,21 @@ class PointCollecteService {
       throw Exception('Erreur lors de la création du point de collecte');
     }
   }
+  Future<PointCollecte> updatePointCollecte(PointCollecte updatedPointCollecte) async {
+  final response = await http.put(
+    Uri.parse('http://localhost:5000/pointCollecte/${updatedPointCollecte.id}'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(updatedPointCollecte.toJson()),
+  );
+
+  if (response.statusCode == 200) {
+    final dynamic data = json.decode(response.body);
+    return PointCollecte.fromJson(data);
+  } else {
+    throw Exception('Erreur lors de la mise à jour du point de collecte');
+  }
+}
+
 }

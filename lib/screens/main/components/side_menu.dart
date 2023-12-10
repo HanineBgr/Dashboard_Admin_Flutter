@@ -1,6 +1,7 @@
 import 'package:admin/screens/dashboard/components/recent_files.dart';
 import 'package:admin/screens/dashboard/dashboard_Pc.dart';
 import 'package:admin/screens/dashboard/dashboard_livraison.dart';
+import 'package:admin/screens/dashboard/mapp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -52,16 +53,16 @@ DrawerListTile(
     );
   },
 ),
-/*DrawerListTile(
+DrawerListTile(
   title: "Map",
   svgSrc: "",
   press: (){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context)=> MapSample()),
+      MaterialPageRoute(builder: (context)=> GoogleMapsScreen()),
     );
   },
-),*/
+),
         /* DrawerListTile(
   title: "Livraison",
   svgSrc: "assets/icons/menu_tran.svg",

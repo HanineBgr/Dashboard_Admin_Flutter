@@ -1,4 +1,373 @@
+/*
 import 'package:admin/models/PointCollecte.dart';
+import 'package:admin/screens/dashboard/formulaire_pc.dart';
+import 'package:admin/screens/dashboard/pc_table.dart';
+import 'package:admin/screens/dashboard/services/pc_services.dart';
+import 'package:fl_chart/fl_chart.dart'; // Import the FL Chart library
+import 'package:flutter/material.dart';
+
+class DashboardPC extends StatefulWidget {
+  @override
+  _DashboardPCState createState() => _DashboardPCState();
+}
+
+class _DashboardPCState extends State<DashboardPC> {
+  PointCollecteService pointCollecteService =
+      PointCollecteService(baseUrl: 'http://localhost:5000');
+  List<PointCollecte> pointsCollecte = [];
+  int nombreTotalPointCollecte = 0;
+  int nombrePointCollecteActif = 0;
+  int nombrePointCollecteInactif = 0;
+
+Future<void> fetchPc() async {
+  try {
+    List<PointCollecte> fetchedPC = await pointCollecteService.getPointsCollecte();
+    setState(() {
+      pointsCollecte = fetchedPC;
+      nombreTotalPointCollecte = pointsCollecte.length;
+      nombrePointCollecteActif = 0; // Laissez-le à 0 pour le moment
+      nombrePointCollecteInactif = 0; // Laissez-le à 0 pour le moment
+    });
+  } catch (error) {
+    print('Erreur lors de la récupération des Point Coleccte: $error');
+  }
+}
+
+  
+
+  Future<void> supprimerPointCollecte(PointCollecte pointCollecte) async {
+    try {
+      await pointCollecteService.deletePointCollecte(pointCollecte.id);
+      fetchPc(); // Refresh the Point Collecte list after deletion
+    } catch (error) {
+      print('Erreur lors de la suppression de Point Coleccte: $error');
+    }
+  }
+
+  void modifierPointCollecte(PointCollecte pointCollecte) {
+    print('Modifier le point de collecte : ${pointCollecte.nomPc}');
+  }
+
+  void ajouterPointCollecte(PointCollecte nouveauPointCollecte) {
+    setState(() {
+      pointsCollecte.add(nouveauPointCollecte);
+    });
+    print('Nouveau Point de collecte ajouté : ${nouveauPointCollecte.nomPc}');
+  }
+
+  void naviguerVersAjoutPointCollecte() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AjoutPointCollecte(
+          onAjouter: ajouterPointCollecte,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPc();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Tableau de bord des points de collecte'),
+      ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildStatCard('Nombre total', nombreTotalPointCollecte),
+              _buildStatCard('Actif', nombrePointCollecteActif),
+              _buildStatCard('Inactif', nombrePointCollecteInactif),
+            ],
+          ),
+          Expanded(
+            child: PointCollecteTable(
+              pointsCollecte: pointsCollecte,
+              onDelete: supprimerPointCollecte,
+              onEdit: modifierPointCollecte,
+              //onNavigateToMap: naviguerVersGoogleMap,
+            ),
+          ),
+          SizedBox(
+            height: 200,
+            child: Stack(
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 70,
+                    startDegreeOffset: -90,
+                    sections: paiChartSelectionData,
+                  ),
+                ),
+                Positioned.fill(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 16),
+                      Text(
+                        '$nombreTotalPointCollecte',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline6!
+                            .copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              height: 0.5,
+                            ),
+                      ),
+                      Text("Total Points de Collecte"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: naviguerVersAjoutPointCollecte,
+        tooltip: 'Ajouter un Point de Collecte',
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, int value) {
+    return Container(
+      width: 200,
+      height: 200,
+      child: Card(
+        elevation: 5,
+        margin: EdgeInsets.all(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(title),
+              Text('$value'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+List<PieChartSectionData> paiChartSelectionData = [
+  PieChartSectionData(
+    color: Color(0xFF26E5FF),
+    value: 55,
+    showTitle: false,
+    radius: 22,
+  ),
+  PieChartSectionData(
+    color: Color(0xFFEE2727),
+    value: 45,
+    showTitle: false,
+    radius: 16,
+  ),
+];
+*/
+import 'package:admin/models/PointCollecte.dart';
+import 'package:admin/screens/dashboard/formulaire_pc.dart';
+import 'package:admin/screens/dashboard/pc_table.dart';
+import 'package:admin/screens/dashboard/services/pc_services.dart';
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+class DashboardPC extends StatefulWidget {
+  @override
+  _DashboardPCState createState() => _DashboardPCState();
+}
+
+class _DashboardPCState extends State<DashboardPC> {
+  PointCollecteService pointCollecteService =
+      PointCollecteService(baseUrl: 'http://localhost:5000');
+  List<PointCollecte> pointsCollecte = [];
+  int nombreTotalPointCollecte = 0;
+  int nombrePointCollecteActif = 0;
+  int nombrePointCollecteInactif = 0;
+
+  Future<void> fetchPc() async {
+    try {
+      List<PointCollecte> fetchedPC =
+          await pointCollecteService.getPointsCollecte();
+      setState(() {
+        pointsCollecte = fetchedPC;
+        nombreTotalPointCollecte = pointsCollecte.length;
+        nombrePointCollecteActif = 0; // Laissez-le à 0 pour le moment
+        nombrePointCollecteInactif = 0; // Laissez-le à 0 pour le moment
+      });
+    } catch (error) {
+      print('Erreur lors de la récupération des Point Collecte: $error');
+    }
+  }
+
+  Future<void> supprimerPointCollecte(PointCollecte pointCollecte) async {
+    try {
+      await pointCollecteService.deletePointCollecte(pointCollecte.id);
+      fetchPc(); // Refresh the Point Collecte list after deletion
+    } catch (error) {
+      print('Erreur lors de la suppression de Point Collecte: $error');
+    }
+  }
+
+  void modifierPointCollecte(PointCollecte pointCollecte) {
+    print('Modifier le point de collecte : ${pointCollecte.nomPc}');
+  }
+
+void ajouterPointCollecte(PointCollecte nouveauPointCollecte) async {
+  try {
+    // Appel à createPointCollecte pour ajouter le nouveau point côté serveur
+    PointCollecte pointCree = await pointCollecteService.createPointCollecte(nouveauPointCollecte);
+    
+    setState(() {
+      pointsCollecte.add(pointCree);
+      // Effectuez d'autres mises à jour d'état si nécessaire
+    });
+
+    print('Nouveau Point de collecte ajouté : ${nouveauPointCollecte.nomPc}');
+  } catch (error) {
+    print('Erreur lors de l\'ajout du point de collecte : $error');
+  }
+}
+
+
+  void naviguerVersAjoutPointCollecte() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AjoutPointCollecte(
+          onAjouter: ajouterPointCollecte,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPc();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Tableau de bord des points de collecte'),
+      ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildStatCard('Nombre total', nombreTotalPointCollecte),
+              _buildStatCard('Actif', nombrePointCollecteActif),
+              _buildStatCard('Inactif', nombrePointCollecteInactif),
+            ],
+          ),
+          Expanded(
+            child: PointCollecteTable(
+              pointsCollecte: pointsCollecte,
+              onDelete: supprimerPointCollecte,
+              onEdit: modifierPointCollecte,
+            ),
+          ),
+          SizedBox(
+            height: 200,
+            child: Stack(
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 70,
+                    startDegreeOffset: -90,
+                    sections: paiChartSelectionData,
+                  ),
+                ),
+                Positioned.fill(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 16),
+                      Text(
+                        '$nombreTotalPointCollecte',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline6!
+                            .copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              height: 0.5,
+                            ),
+                      ),
+                      Text("Total Points de Collecte"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: naviguerVersAjoutPointCollecte,
+        tooltip: 'Ajouter un Point de Collecte',
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, int value) {
+    return Container(
+      width: 200,
+      height: 200,
+      child: Card(
+        elevation: 5,
+        margin: EdgeInsets.all(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(title),
+              Text('$value'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+List<PieChartSectionData> paiChartSelectionData = [
+  PieChartSectionData(
+    color: Color(0xFF26E5FF),
+    value: 55,
+    showTitle: false,
+    radius: 22,
+  ),
+  PieChartSectionData(
+    color: Color(0xFFEE2727),
+    value: 45,
+    showTitle: false,
+    radius: 16,
+  ),
+];
+
+
+
+
+
+/*import 'package:admin/models/PointCollecte.dart';
 import 'package:admin/screens/dashboard/formulaire_pc.dart';
 import 'package:admin/screens/dashboard/pc_table.dart';
 import 'package:fl_chart/fl_chart.dart'; // Importer la bibliothèque FL Chart
@@ -170,7 +539,7 @@ List<PieChartSectionData> paiChartSelectionData = [
     radius: 16,
   ),
 ];
-
+*/
 
 
 

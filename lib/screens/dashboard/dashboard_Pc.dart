@@ -17,20 +17,22 @@ class _DashboardPCState extends State<DashboardPC> {
   int nombrePointCollecteActif = 0;
   int nombrePointCollecteInactif = 0;
 
-  Future<void> fetchPc() async {
-    try {
-      List<PointCollecte> fetchedPC =
-          await pointCollecteService.getPointsCollecte();
-      setState(() {
-        pointsCollecte = fetchedPC;
-        nombreTotalPointCollecte = pointsCollecte.length;
-        nombrePointCollecteActif = 0; // Laissez-le à 0 pour le moment
-        nombrePointCollecteInactif = 0; // Laissez-le à 0 pour le moment
-      });
-    } catch (error) {
-      print('Erreur lors de la récupération des Point Collecte: $error');
-    }
+ Future<void> fetchPc() async {
+  try {
+    List<PointCollecte> fetchedPC =
+        await pointCollecteService.getPointsCollecte();
+    int totalPoints = await pointCollecteService.countTotalPoints();
+
+    setState(() {
+      pointsCollecte = fetchedPC;
+      nombreTotalPointCollecte = totalPoints;
+      nombrePointCollecteActif = 0; // Laissez-le à 0 pour le moment
+      nombrePointCollecteInactif = 0; // Laissez-le à 0 pour le moment
+    });
+  } catch (error) {
+    print('Erreur lors de la récupération des Point Collecte: $error');
   }
+}
 
   Future<void> supprimerPointCollecte(PointCollecte pointCollecte) async {
     try {

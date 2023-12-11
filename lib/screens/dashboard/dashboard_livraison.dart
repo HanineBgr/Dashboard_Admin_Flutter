@@ -21,9 +21,10 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
   Future<void> fetchLivraisons() async {
     try {
       List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
+      int totalLivraisons = await livraisonService.countLiv();
       setState(() {
         livraisons = fetchedLivraisons;
-        nombreTotalLivraisons =livraisons.length;
+        nombreTotalLivraisons =totalLivraisons;
         nombreProduitsLivres = 0 ;//livraisons.where((livraison) =>  Add condition for produits livres ).length;
         nombreRetours = 0 ; //livraisons.where((livraison) => Add condition for retours ).length;
       });

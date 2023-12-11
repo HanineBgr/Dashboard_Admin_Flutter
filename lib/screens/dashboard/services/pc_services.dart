@@ -59,5 +59,14 @@ class PointCollecteService {
     throw Exception('Erreur lors de la mise à jour du point de collecte');
   }
 }
+  Future<int> countTotalPoints() async {
+    final response = await http.get(Uri.parse('http://localhost:5000/pointCollecte/countTotalPc'));
 
+    if (response.statusCode == 200) {
+      final dynamic data = json.decode(response.body);
+      return data['totalPoints'] as int;
+    } else {
+      throw Exception('Erreur lors de la récupération du nombre total de points de collecte');
+    }
+  }
 }

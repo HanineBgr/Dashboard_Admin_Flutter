@@ -28,4 +28,13 @@ Future<void> deleteLivraison(String id) async {
     throw Exception('Failed to delete Livraison');
   }
 }
+Future<int> countLiv()async {
+  final response = await http.get(Uri.parse('http://localhost:5000/livraison/countLiv'));
+  if (response.statusCode == 200) {
+    final dynamic data =  json.decode(response.body);
+    return data['totalLivraisons'] as int;
+  } else {
+    throw Exception('Erreur lors de la récupération du nombre total de Livraisons');
+  }
+}
 }

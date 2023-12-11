@@ -357,8 +357,3 @@ class _AjoutPointCollecteState extends State<AjoutPointCollecte> {
     );
   }
 }
-
-
-
-
-

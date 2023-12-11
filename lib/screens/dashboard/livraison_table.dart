@@ -1,4 +1,3 @@
-
 import 'package:admin/models/livraison.dart';
 import 'package:flutter/material.dart';
 
@@ -50,7 +49,6 @@ class LivraisonTable extends StatelessWidget {
     );
   }
 }
-
 
 
 

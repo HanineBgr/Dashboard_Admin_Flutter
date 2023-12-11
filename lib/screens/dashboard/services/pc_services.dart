@@ -69,4 +69,17 @@ class PointCollecteService {
       throw Exception('Erreur lors de la récupération du nombre total de points de collecte');
     }
   }
+  
+Future<int> countInactivePoints() async {
+  final response = await http.get(Uri.parse('http://localhost:5000/pointCollecte/countInactivePoints'));
+
+  if (response.statusCode == 200) {
+    final dynamic data = json.decode(response.body);
+    // Use null-aware operator ?? to provide a default value of 0 if the data is null
+    return data['countInactivePoints'] as int ?? 0;
+  } else {
+    throw Exception('Erreur lors de la récupération du nombre de points de collecte inactifs');
+  }
+}
+
 }

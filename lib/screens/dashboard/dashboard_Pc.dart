@@ -22,13 +22,17 @@ class _DashboardPCState extends State<DashboardPC> {
     try {
       List<PointCollecte> fetchedPC =
           await pointCollecteService.getPointsCollecte();
+          int totalPoints = (await pointCollecteService.countTotalPoints()) ?? 0;
+          int inactivePoints = (await pointCollecteService.countInactivePoints()) ?? 0;
+/*
       int totalPoints = await pointCollecteService.countTotalPoints();
+      int inactivePoints = await pointCollecteService.countInactivePoints();*/
 
       setState(() {
         pointsCollecte = fetchedPC;
         nombreTotalPointCollecte = totalPoints;
         nombrePointCollecteActif = 0; // Laissez-le à 0 pour le moment
-        nombrePointCollecteInactif = 0; // Laissez-le à 0 pour le moment
+        nombrePointCollecteInactif = inactivePoints;
       });
     } catch (error) {
       print('Erreur lors de la récupération des Point Collecte: $error');

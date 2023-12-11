@@ -14,14 +14,13 @@ class PointCollecteTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 300, // Ajustez cette hauteur en fonction de vos besoins
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.white),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
+    return SingleChildScrollView(
+      child: Container(
+        height: 300, // Ajustez cette hauteur en fonction de vos besoins
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         child: DataTable(
           columns: [
             DataColumn(label: Text('Nom du Point de Collecte')),
@@ -65,5 +64,4 @@ class PointCollecteTable extends StatelessWidget {
     );
   }
 }
-
 

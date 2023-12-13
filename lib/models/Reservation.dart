@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ReservationPage extends StatefulWidget {
   @override
@@ -7,21 +9,33 @@ class ReservationPage extends StatefulWidget {
 
 class _ReservationPageState extends State<ReservationPage> {
   TextEditingController _searchController = TextEditingController();
-  List<ReservationItem> allReservations = List.generate(
-    5,
-    (index) => ReservationItem(
-      reservationId: '$index',
-      dateCommentaire: '05/12/2023 22:47 $index',
-      commentaire: 'test 1 $index',
-    ),
-  );
+  List<ReservationItem> allReservations = [];
 
   List<ReservationItem> displayedReservations = [];
 
   @override
   void initState() {
     super.initState();
-    displayedReservations = List.from(allReservations);
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:5000/api/reservation/'));
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = jsonDecode(response.body)['reservations'];
+        setState(() {
+          allReservations = List<ReservationItem>.from(
+            responseData.map((reservation) => ReservationItem.fromJson(reservation)),
+          );
+          displayedReservations = List.from(allReservations);
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (error) {
+      print('Error fetching data: $error');
+    }
   }
 
   @override
@@ -41,7 +55,6 @@ class _ReservationPageState extends State<ReservationPage> {
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
-          
                   filterReservations(value);
                 },
               ),
@@ -51,7 +64,6 @@ class _ReservationPageState extends State<ReservationPage> {
       ),
       body: Column(
         children: [
-        
           Expanded(
             child: ListView.builder(
               itemCount: displayedReservations.length,
@@ -86,6 +98,14 @@ class ReservationItem extends StatelessWidget {
     required this.dateCommentaire,
     required this.commentaire,
   });
+
+  factory ReservationItem.fromJson(Map<String, dynamic> json) {
+    return ReservationItem(
+      reservationId: json['_id'],
+      dateCommentaire: json['dateReservation'],
+      commentaire: json['commentaire'],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

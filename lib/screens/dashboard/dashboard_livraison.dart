@@ -14,7 +14,6 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
   LivraisonService livraisonService =
       LivraisonService(baseUrl: 'http://localhost:5000');
   List<Livraison> livraisons = [];
-
   int nombreTotalLivraisons = 0;
   int nombreProduitsLivres = 0;
   int nombreRetours = 0;
@@ -33,6 +32,8 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
       radius: 16,
     ),
   ];
+
+  String searchTerm = '';
 
   Future<void> fetchLivraisons() async {
     try {
@@ -79,9 +80,33 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
           Expanded(
             child: Center(
               child: SingleChildScrollView(
-                child: LivraisonTable(
-                  livraisons: livraisons,
-                  onDelete: supprimerLivraison,
+                child: Column(
+                  children: [
+                    Container(
+                      width: 220, // Ajustez la largeur selon vos besoins
+                      child: TextField(
+                        onChanged: (value) {
+                          setState(() {
+                            searchTerm = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Rechercher par client',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10), // Espacement
+                    LivraisonTable(
+                      livraisons: livraisons
+                          .where((livraison) =>
+                              livraison.nomClient
+                                  .toLowerCase()
+                                  .contains(searchTerm.toLowerCase()))
+                          .toList(),
+                      onDelete: supprimerLivraison,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -125,6 +150,7 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
     );
   }
 }
+
 
 
 

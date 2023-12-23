@@ -18,6 +18,7 @@ class _DashboardPCState extends State<DashboardPC> {
   int nombreTotalPointCollecte = 0;
   int nombrePointCollecteActif = 0;
   int nombrePointCollecteInactif = 0;
+  String searchTerm = '';
 
   Future<void> fetchPc() async {
     try {
@@ -147,91 +148,110 @@ class _DashboardPCState extends State<DashboardPC> {
     super.initState();
     fetchPc();
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Tableau de bord des points de collecte'),
-      ),
-      body: Row(
-        children: [
-          // Conteneur pour le tableau
-          Expanded(
-            child: Scrollbar(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: PointCollecteTable(
-                  pointsCollecte: pointsCollecte,
-                  onDelete: supprimerPointCollecte,
-                  onEdit: modifierPointCollecte,
-                  onTableRefresh: fetchPc,
-                  onPosition: naviguerVersLocalMap,
-                ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Tableau de bord des points de collecte'),
+    ),
+    body: Row(
+      children: [
+        // Conteneur pour le tableau et le bouton
+        Expanded(
+          child: Scrollbar(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: naviguerVersAjoutPointCollecte,
+                    child: Text('Ajouter un Point de Collecte'),
+                  ),
+                  SizedBox(height: 10), // Espacement
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        searchTerm = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Rechercher point collecte',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  PointCollecteTable(
+                    pointsCollecte: pointsCollecte
+                        .where((point) =>
+                            point.nomPc
+                                .toLowerCase()
+                                .contains(searchTerm.toLowerCase()))
+                        .toList(),
+                    onDelete: supprimerPointCollecte,
+                    onEdit: modifierPointCollecte,
+                    onTableRefresh: fetchPc,
+                    onPosition: naviguerVersLocalMap,
+                  ),
+                ],
               ),
             ),
           ),
-          SizedBox(width: 20), // Espacement entre les deux conteneurs
-          // Conteneur pour les cartes et le graphique
-          Container(
-            width: 200,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                                Container(
-                  height: 200,
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16),
-                  child: PieChart(
-                    PieChartData(
-                      sections: getPieChartSelectionData(),
-                    ),
+        ),
+        SizedBox(width: 20), // Espacement entre les deux conteneurs
+        // Conteneur pour les cartes et le graphique
+        Container(
+          width: 200,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                height: 200,
+                width: double.infinity,
+                padding: EdgeInsets.all(16),
+                child: PieChart(
+                  PieChartData(
+                    sections: getPieChartSelectionData(),
                   ),
                 ),
-                Container(
-                  width: double.infinity, // Utiliser la largeur maximale
-                  child: DashboardCard(
-                    title: 'Nombre total',
-                    value: nombreTotalPointCollecte,
+              ),
+              Container(
+                width: double.infinity, // Utiliser la largeur maximale
+                child: DashboardCard(
+                  title: 'Nombre total',
+                  value: nombreTotalPointCollecte,
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                child: DashboardCard(
+                  title: 'Actif',
+                  value: nombrePointCollecteActif,
+                  valueStyle: TextStyle(
+                    color: Color(0xFF26E5FF),
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  child: DashboardCard(
-                    title: 'Actif',
-                    value: nombrePointCollecteActif,
-                    valueStyle: TextStyle(
-                      color: Color(0xFF26E5FF),
-                    ),
+              ),
+              Container(
+                width: double.infinity,
+                child: DashboardCard(
+                  title: 'Inactif',
+                  value: nombrePointCollecteInactif,
+                  valueStyle: TextStyle(
+                    color: Color(0xFFEE2727),
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  child: DashboardCard(
-                    title: 'Inactif',
-                    value: nombrePointCollecteInactif,
-                    valueStyle: TextStyle(
-                      color: Color(0xFFEE2727),
-                    ),
-                  ),
-                ),
-
-                /*ElevatedButton(
-                  onPressed: naviguerVersAjoutPointCollecte,
-                  child: Text('Ajouter un Point de Collecte'),
-                ),*/
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: naviguerVersAjoutPointCollecte,
-        tooltip: 'Ajouter un Point de Collecte',
-        child: Icon(Icons.add),
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: naviguerVersAjoutPointCollecte,
+      tooltip: 'Ajouter un Point de Collecte',
+      child: Icon(Icons.add),
+    ),
+  );
+}
 
   List<PieChartSectionData> getPieChartSelectionData() {
     return [
@@ -288,7 +308,6 @@ class DashboardCard extends StatelessWidget {
     );
   }
 }
-
 
 
 

@@ -65,6 +65,7 @@ class PointCollecteTable extends StatelessWidget {
     );
   }
 }*/
+/*
 import 'package:flutter/material.dart';
 import 'package:admin/models/PointCollecte.dart';
 
@@ -133,5 +134,89 @@ class PointCollecteTable extends StatelessWidget {
       ),
     );
   }
+}*/
+// Importez le paquet flutter/material.dart s'il n'est pas déjà importé
+import 'package:flutter/material.dart';
+import 'package:admin/models/PointCollecte.dart';
+
+import 'package:flutter/material.dart';
+import 'package:admin/models/PointCollecte.dart';
+
+class PointCollecteTable extends StatelessWidget {
+  final List<PointCollecte> pointsCollecte;
+  final Function(PointCollecte) onDelete;
+  final Function(PointCollecte) onEdit;
+  final Function onTableRefresh;
+  final Function(PointCollecte) onPosition; // Nouvelle fonction pour la position
+
+  PointCollecteTable({
+    required this.pointsCollecte,
+    required this.onDelete,
+    required this.onEdit,
+    required this.onTableRefresh,
+    required this.onPosition, // Nouveau paramètre
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
+        height: 300,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('Nom du Point de Collecte')),
+            DataColumn(label: Text('Adresse Email')),
+            DataColumn(label: Text('Adresse')),
+            DataColumn(label: Text('Numéro de Téléphone')),
+            DataColumn(label: Text('Coordonnée X')),
+            DataColumn(label: Text('Coordonnée Y')),
+            DataColumn(label: Text('Actions')),
+          ],
+          rows: pointsCollecte.map((pc) {
+            return DataRow(cells: [
+              DataCell(Text(pc.nomPc)),
+              DataCell(Text(pc.addressMailPc)),
+              DataCell(Text(pc.addressPc)),
+              DataCell(Text(pc.numerotel.toString())),
+              DataCell(Text(pc.x.toString())),
+              DataCell(Text(pc.y.toString())),
+              DataCell(Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      onEdit(pc);
+                      onTableRefresh();
+                    },
+                  ),
+                  SizedBox(width: 8.0),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      onDelete(pc);
+                      onTableRefresh(); // Trigger table refresh
+                    },
+                  ),
+                  SizedBox(width: 8.0),
+                  IconButton(
+                    icon: Icon(Icons.location_on),
+                    onPressed: () {
+                      onPosition(pc); // Appeler la fonction de position
+                    },
+                  ),
+                ],
+              )),
+            ]);
+          }).toList(),
+        ),
+      ),
+    );
+  }
 }
+
 

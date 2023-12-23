@@ -53,7 +53,7 @@ DrawerListTile(
     );
   },
 ),
-DrawerListTile(
+/*DrawerListTile(
   title: "Map",
   svgSrc: "",
   press: (){
@@ -62,7 +62,7 @@ DrawerListTile(
       MaterialPageRoute(builder: (context)=> LocalMap()),
     );
   },
-),
+),*/
         /* DrawerListTile(
   title: "Livraison",
   svgSrc: "assets/icons/menu_tran.svg",

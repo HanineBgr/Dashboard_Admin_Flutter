@@ -180,12 +180,17 @@ class _DashboardPCState extends State<DashboardPC> {
             ],
           ),
           Expanded(
-            child: PointCollecteTable(
-              pointsCollecte: pointsCollecte,
-              onDelete: supprimerPointCollecte,
-              onEdit: modifierPointCollecte,
-              onTableRefresh: fetchPc,
-              onPosition: naviguerVersLocalMap,
+            child: Scrollbar(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: PointCollecteTable(
+                  pointsCollecte: pointsCollecte,
+                  onDelete: supprimerPointCollecte,
+                  onEdit: modifierPointCollecte,
+                  onTableRefresh: fetchPc,
+                  onPosition: naviguerVersLocalMap,
+                ),
+              ),
             ),
           ),
           SizedBox(
@@ -285,6 +290,7 @@ class DashboardCard extends StatelessWidget {
     );
   }
 }
+
 
 
 /*import 'package:admin/screens/dashboard/dashboard_card.dart';

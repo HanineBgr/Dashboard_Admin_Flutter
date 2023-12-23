@@ -1,9 +1,8 @@
 import 'package:admin/models/livraison.dart';
-import 'package:admin/models/livreur.dart';
+import 'package:admin/screens/dashboard/dashboard_card.dart';
+import 'package:admin/screens/dashboard/livraison_table.dart';
 import 'package:admin/screens/dashboard/services/livraison_service.dart';
 import 'package:flutter/material.dart';
-import 'dashboard_card.dart';
-import 'livraison_table.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class DashboardLivraison extends StatefulWidget {
@@ -34,28 +33,27 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
     ),
   ];
 
-Future<void> fetchLivraisons() async {
-  try {
-    List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
-    int totalLivraisons = (await livraisonService.countLiv()) ?? 0;
-    int produitsLivres = 1;//(await livraisonService.getStatLiv()) ?? 0;
-    
-    setState(() {
-      livraisons = fetchedLivraisons;
-      nombreTotalLivraisons = totalLivraisons;
-      nombreProduitsLivres = produitsLivres;
-      nombreRetours = totalLivraisons - produitsLivres;
-    });
-  } catch (error) {
-    print('Erreur lors de la récupération des livraisons: $error');
-  }
-}
+  Future<void> fetchLivraisons() async {
+    try {
+      List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
+      int totalLivraisons = (await livraisonService.countLiv()) ?? 0;
+      int produitsLivres = 1; // Remplacez cette valeur par la vraie valeur
 
+      setState(() {
+        livraisons = fetchedLivraisons;
+        nombreTotalLivraisons = totalLivraisons;
+        nombreProduitsLivres = produitsLivres;
+        nombreRetours = totalLivraisons - produitsLivres;
+      });
+    } catch (error) {
+      print('Erreur lors de la récupération des livraisons: $error');
+    }
+  }
 
   Future<void> supprimerLivraison(Livraison livraison) async {
     try {
       await livraisonService.deleteLivraison(livraison.id);
-      fetchLivraisons(); // Refresh the livraisons list after deletion
+      fetchLivraisons(); // Rafraîchir la liste des livraisons après la suppression
     } catch (error) {
       print('Erreur lors de la suppression de la livraison: $error');
     }
@@ -92,18 +90,20 @@ Future<void> fetchLivraisons() async {
                 valueStyle: TextStyle(color: Color(0xFF26E5FF)),
               ),
               DashboardCard(
-                title: 'Produits non Livres',
+                title: 'Produits non Livrés',
                 value: nombreRetours,
-                valueStyle: TextStyle(color:Color(0xFFEE2727) ),
+                valueStyle: TextStyle(color: Color(0xFFEE2727)),
               ),
             ],
           ),
           SizedBox(height: 20),
           // Le tableau au centre
           Expanded(
-            child: LivraisonTable(
-              livraisons: livraisons,
-              onDelete: supprimerLivraison,
+            child: SingleChildScrollView(
+              child: LivraisonTable(
+                livraisons: livraisons,
+                onDelete: supprimerLivraison,
+              ),
             ),
           ),
           SizedBox(height: 20),

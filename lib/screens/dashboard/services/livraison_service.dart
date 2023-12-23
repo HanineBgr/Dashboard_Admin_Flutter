@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'package:admin/models/livraison.dart';
+import 'package:admin/models/livreur.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -40,13 +41,29 @@ Future<int> countLiv() async {
     throw Exception('Erreur lors de la récupération du nombre total de Livraisons');
   }
 }
-Future<int> getStatLiv() async {
-  final response = await http.get(Uri.parse('http://localhost:5000/livraison/livraison_livree'));
+Future<int> countAndShowDeliveredLivraisons() async {
+  try {
+    final response = await http.get(Uri.parse('http://localhost:5000/livraison/livraison_livree'));
+    print('Response from API: ${response.body}');
+
     if (response.statusCode == 200) {
-    final dynamic data = json.decode(response.body);
-    return data['totalLivree'] as int ?? 0;
-    }else {
-      throw Exception("err");
+      final dynamic data = json.decode(response.body);
+
+      // Vérifiez si la clé 'totalDeliveredLivraisons' existe dans la réponse JSON
+      if (data != null && data.containsKey('totalDeliveredLivraisons')) {
+        return data['totalDeliveredLivraisons'] as int ?? 0;
+      } else {
+        throw Exception('La clé "totalDeliveredLivraisons" est manquante dans la réponse JSON');
+      }
+    } else {
+      throw Exception('Erreur lors de la récupération du nombre total de livraisons livrées');
     }
+  } catch (error) {
+    print('Error in countAndShowDeliveredLivraisons: $error');
+    throw error;
+  }
 }
+
 }
+
+

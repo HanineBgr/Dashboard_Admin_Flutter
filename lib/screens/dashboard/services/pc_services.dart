@@ -95,4 +95,5 @@ Future<int> countInactivePoints() async {
       throw Exception('Erreur lors de la récupération du nombre de points actifs: $error');
     }
   }
+  
 }

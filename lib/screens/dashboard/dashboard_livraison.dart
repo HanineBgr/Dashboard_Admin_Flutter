@@ -11,42 +11,43 @@ class DashboardLivraison extends StatefulWidget {
 }
 
 class _DashboardLivraisonState extends State<DashboardLivraison> {
-  LivraisonService livraisonService =
-      LivraisonService(baseUrl: 'http://localhost:5000');
+  LivraisonService livraisonService = LivraisonService(baseUrl: 'http://localhost:5000');
   List<Livraison> livraisons = [];
   int nombreTotalLivraisons = 0;
   int nombreProduitsLivres = 0;
   int nombreRetours = 0;
 
-  List<PieChartSectionData> paiChartSelectionData = [
-    PieChartSectionData(
-      color: Color(0xFF26E5FF),
-      value: 5,
-      title: 'livre',
-      radius: 22,
-    ),
-    PieChartSectionData(
-      color: Color(0xFFEE2727),
-      value: 1,
-      title: 'non livre',
-      radius: 16,
-    ),
-  ];
+  late List<PieChartSectionData> paiChartSelectionData;
 
   String searchTerm = '';
 
   Future<void> fetchLivraisons() async {
     try {
-      List<Livraison> fetchedLivraisons =
-          await livraisonService.getLivraisons();
+      List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
       int totalLivraisons = (await livraisonService.countLiv()) ?? 0;
-      int produitsLivres = 1; // Remplacez cette valeur par la vraie valeur
+      int produitsLivres = (await livraisonService.countAndShowDeliveredLivraisons()) ?? 0;
 
       setState(() {
         livraisons = fetchedLivraisons;
         nombreTotalLivraisons = totalLivraisons;
         nombreProduitsLivres = produitsLivres;
         nombreRetours = totalLivraisons - produitsLivres;
+
+        // Initialisation de paiChartSelectionData après avoir défini les valeurs nécessaires
+        paiChartSelectionData = [
+          PieChartSectionData(
+            color: Color(0xFF26E5FF),
+            value: nombreProduitsLivres.toDouble(),
+            title: 'livre',
+            radius: 22,
+          ),
+          PieChartSectionData(
+            color: Color(0xFFEE2727),
+            value: nombreRetours.toDouble(),
+            title: 'non livre',
+            radius: 16,
+          ),
+        ];
       });
     } catch (error) {
       print('Erreur lors de la récupération des livraisons: $error');
@@ -56,7 +57,7 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
   Future<void> supprimerLivraison(Livraison livraison) async {
     try {
       await livraisonService.deleteLivraison(livraison.id);
-      fetchLivraisons(); // Rafraîchir la liste des livraisons après la suppression
+      fetchLivraisons();
     } catch (error) {
       print('Erreur lors de la suppression de la livraison: $error');
     }
@@ -76,14 +77,13 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
       ),
       body: Row(
         children: [
-          // Premier conteneur centré avec le tableau
           Expanded(
             child: Center(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
                     Container(
-                      width: 220, // Ajustez la largeur selon vos besoins
+                      width: MediaQuery.of(context).size.width * 0.3,
                       child: TextField(
                         onChanged: (value) {
                           setState(() {
@@ -96,7 +96,7 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10), // Espacement
+                    SizedBox(height: 10),
                     LivraisonTable(
                       livraisons: livraisons
                           .where((livraison) =>
@@ -111,10 +111,9 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
               ),
             ),
           ),
-          SizedBox(width: 5), // Espace entre les deux conteneurs
-          // Deuxième conteneur à droite avec DashboardCard et le graphique
+          SizedBox(width: 5),
           Container(
-            width: 200, // Ajustez la largeur selon vos besoins
+            width: 200,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -150,6 +149,7 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
     );
   }
 }
+
 
 
 

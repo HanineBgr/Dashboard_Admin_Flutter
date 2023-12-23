@@ -9,11 +9,12 @@ class Livreur {
     required this.idlivraison,
     required this.etat,
   });
-  factory Livreur.fromJson(Map<String, dynamic> json){
+
+  factory Livreur.fromJson(Map<String, dynamic> json) {
     return Livreur(
       id: json['_id'],
-       idlivraison: json['idlivraison'],
-        etat: json['etat']
-        );
+      idlivraison: json['idlivraison'],
+      etat: json['etat'],
+    );
   }
 }

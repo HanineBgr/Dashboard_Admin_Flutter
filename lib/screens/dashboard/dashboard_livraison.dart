@@ -11,7 +11,8 @@ class DashboardLivraison extends StatefulWidget {
 }
 
 class _DashboardLivraisonState extends State<DashboardLivraison> {
-  LivraisonService livraisonService = LivraisonService(baseUrl: 'http://localhost:5000');
+  LivraisonService livraisonService =
+      LivraisonService(baseUrl: 'http://localhost:5000');
   List<Livraison> livraisons = [];
 
   int nombreTotalLivraisons = 0;
@@ -35,7 +36,8 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
 
   Future<void> fetchLivraisons() async {
     try {
-      List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
+      List<Livraison> fetchedLivraisons =
+          await livraisonService.getLivraisons();
       int totalLivraisons = (await livraisonService.countLiv()) ?? 0;
       int produitsLivres = 1; // Remplacez cette valeur par la vraie valeur
 
@@ -71,248 +73,36 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
       appBar: AppBar(
         title: Text('Tableau de bord de livraison'),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: Row(
         children: [
-          SizedBox(height: 20),
-          // Les 3 cartes horizontales
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DashboardCard(
-                title: 'Total Livraisons',
-                value: nombreTotalLivraisons,
-              ),
-              DashboardCard(
-                title: 'Produits Livrés',
-                value: nombreProduitsLivres,
-                valueStyle: TextStyle(color: Color(0xFF26E5FF)),
-              ),
-              DashboardCard(
-                title: 'Produits non Livrés',
-                value: nombreRetours,
-                valueStyle: TextStyle(color: Color(0xFFEE2727)),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          // Le tableau au centre
+          // Premier conteneur centré avec le tableau
           Expanded(
-            child: SingleChildScrollView(
-              child: LivraisonTable(
-                livraisons: livraisons,
-                onDelete: supprimerLivraison,
+            child: Center(
+              child: SingleChildScrollView(
+                child: LivraisonTable(
+                  livraisons: livraisons,
+                  onDelete: supprimerLivraison,
+                ),
               ),
             ),
           ),
-          SizedBox(height: 20),
-          // Le graphique en bas
+          SizedBox(width: 5), // Espace entre les deux conteneurs
+          // Deuxième conteneur à droite avec DashboardCard et le graphique
           Container(
-            height: 200,
-            width: 200,
-            padding: EdgeInsets.all(16),
-            child: PieChart(
-              PieChartData(
-                sections: paiChartSelectionData,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/*import 'package:admin/models/livraison.dart';
-import 'package:admin/screens/dashboard/services/livraison_service.dart';
-import 'package:flutter/material.dart';
-import 'dashboard_card.dart';
-import 'livraison_table.dart';
-import 'package:fl_chart/fl_chart.dart';
-
-class DashboardLivraison extends StatefulWidget {
-  @override
-  _DashboardLivraisonState createState() => _DashboardLivraisonState();
-}
-
-class _DashboardLivraisonState extends State<DashboardLivraison> {
-  LivraisonService livraisonService = LivraisonService(baseUrl: 'http://localhost:5000');
-  List<Livraison> livraisons = [];
-
-  int nombreTotalLivraisons = 0;
-  int nombreProduitsLivres = 0;
-  int nombreRetours = 0;
-
-  Future<void> fetchLivraisons() async {
-    try {
-      List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
-      int totalLivraisons = await livraisonService.countLiv();
-      setState(() {
-        livraisons = fetchedLivraisons;
-        nombreTotalLivraisons = totalLivraisons;
-        nombreProduitsLivres = 1; // livraisons.where((livraison) => Add condition for produits livres ).length;
-        nombreRetours = 0; // livraisons.where((livraison) => Add condition for retours ).length;
-      });
-    } catch (error) {
-      print('Erreur lors de la récupération des livraisons: $error');
-    }
-  }
-
-  Future<void> supprimerLivraison(Livraison livraison) async {
-    try {
-      await livraisonService.deleteLivraison(livraison.id);
-      fetchLivraisons(); // Refresh the livraisons list after deletion
-    } catch (error) {
-      print('Erreur lors de la suppression de la livraison: $error');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchLivraisons();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Tableau de bord de livraison'),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(height: 20),
-          // Les 3 cartes horizontales
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DashboardCard(
-                title: 'Total Livraisons',
-                value: nombreTotalLivraisons,
-              ),
-              DashboardCard(
-                title: 'Produits Livrés',
-                value: nombreProduitsLivres,
-              ),
-              DashboardCard(
-                title: 'Retours',
-                value: nombreRetours,
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          // Le tableau au centre
-          Expanded(
-            child: LivraisonTable(
-              livraisons: livraisons,
-              onDelete: supprimerLivraison,
-            ),
-          ),
-          SizedBox(height: 20),
-          // Le graphique en bas
-          Container(
-            height: 200,
-            width: 200,
-            padding: EdgeInsets.all(16),
-            child: PieChart(
-              PieChartData(
-                sections: [
-                  PieChartSectionData(
-                    value: nombreProduitsLivres.toDouble(),
-                    color: Colors.blue,
-                    title: 'Produits Livrés',
-                    radius: 50,
-                  ),
-                  PieChartSectionData(
-                    value: nombreRetours.toDouble(),
-                    color: Colors.red,
-                    title: 'Retours',
-                    radius: 50,
-                  ),
-                  PieChartSectionData(
-                    value: (nombreTotalLivraisons - nombreProduitsLivres - nombreRetours).toDouble(),
-                    color: Colors.grey,
-                    title: 'Non traité',
-                    radius: 50,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}*/
-
-
-/*import 'package:admin/models/livraison.dart';
-import 'package:admin/screens/dashboard/services/livraison_service.dart';
-import 'package:flutter/material.dart';
-import 'dashboard_card.dart';
-import 'livraison_table.dart';
-import 'package:fl_chart/fl_chart.dart';
-
-class DashboardLivraison extends StatefulWidget {
-  @override
-  _DashboardLivraisonState createState() => _DashboardLivraisonState();
-}
-
-class _DashboardLivraisonState extends State<DashboardLivraison> {
-  LivraisonService livraisonService = LivraisonService(baseUrl: 'http://localhost:5000');
-  List<Livraison> livraisons = [];
-
-  int nombreTotalLivraisons = 0;
-  int nombreProduitsLivres = 0;
-  int nombreRetours = 0;
-
-  Future<void> fetchLivraisons() async {
-    try {
-      List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
-      int totalLivraisons = await livraisonService.countLiv();
-      setState(() {
-        livraisons = fetchedLivraisons;
-        nombreTotalLivraisons = totalLivraisons;
-        nombreProduitsLivres = ; // livraisons.where((livraison) => Add condition for produits livres ).length;
-        nombreRetours = 0; // livraisons.where((livraison) => Add condition for retours ).length;
-      });
-    } catch (error) {
-      print('Erreur lors de la récupération des livraisons: $error');
-    }
-  }
-
-  Future<void> supprimerLivraison(Livraison livraison) async {
-    try {
-      await livraisonService.deleteLivraison(livraison.id);
-      fetchLivraisons(); // Refresh the livraisons list after deletion
-    } catch (error) {
-      print('Erreur lors de la suppression de la livraison: $error');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchLivraisons();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Tableau de bord de livraison'),
-      ),
-      body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Add your cards to the left of the table
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            width: 200, // Ajustez la largeur selon vos besoins
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                Container(
+                  height: 200,
+                  width: 200,
+                  padding: EdgeInsets.all(16),
+                  child: PieChart(
+                    PieChartData(
+                      sections: paiChartSelectionData,
+                    ),
+                  ),
+                ),
                 DashboardCard(
                   title: 'Total Livraisons',
                   value: nombreTotalLivraisons,
@@ -320,147 +110,26 @@ class _DashboardLivraisonState extends State<DashboardLivraison> {
                 DashboardCard(
                   title: 'Produits Livrés',
                   value: nombreProduitsLivres,
+                  valueStyle: TextStyle(color: Color(0xFF26E5FF)),
                 ),
                 DashboardCard(
-                  title: 'Retours',
+                  title: 'Produits non Livrés',
                   value: nombreRetours,
+                  valueStyle: TextStyle(color: Color(0xFFEE2727)),
                 ),
               ],
-            ),
-            SizedBox(width: 20), // Add some spacing between the cards and the chart
-            Container(
-              height: 200,
-              width: 200,
-              padding: EdgeInsets.all(16),
-              child: PieChart(
-                PieChartData(
-                  sections: [
-                    PieChartSectionData(
-                      value: nombreProduitsLivres.toDouble(),
-                      color: Colors.blue,
-                      title: 'Produits Livrés',
-                      radius: 50,
-                    ),
-                    PieChartSectionData(
-                      value: nombreRetours.toDouble(),
-                      color: Colors.red,
-                      title: 'Retours',
-                      radius: 50,
-                    ),
-                    PieChartSectionData(
-                      value: (nombreTotalLivraisons - nombreProduitsLivres - nombreRetours).toDouble(),
-                      color: Colors.grey,
-                      title: 'Non traité',
-                      radius: 50,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(width: 20), // Add some spacing between the chart and the table
-            // Tableau au centre de la page
-            Expanded(
-              child: LivraisonTable(
-                livraisons: livraisons,
-                onDelete: supprimerLivraison,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}*/
-
-
-
-
-
-/*
-import 'package:admin/models/livraison.dart';
-import 'package:admin/screens/dashboard/services/livraison_service.dart';
-import 'package:flutter/material.dart';
-import 'dashboard_card.dart';
-import 'livraison_table.dart';
-
-class DashboardLivraison extends StatefulWidget {
-  @override
-  _DashboardLivraisonState createState() => _DashboardLivraisonState();
-}
-class _DashboardLivraisonState extends State<DashboardLivraison> {
-  LivraisonService livraisonService = LivraisonService(baseUrl: 'http://localhost:5000'); 
-  List<Livraison> livraisons = [];
-
-  int nombreTotalLivraisons = 0;
-  int nombreProduitsLivres = 0;
-  int nombreRetours = 0;
-
-  Future<void> fetchLivraisons() async {
-    try {
-      List<Livraison> fetchedLivraisons = await livraisonService.getLivraisons();
-      int totalLivraisons = await livraisonService.countLiv();
-      setState(() {
-        livraisons = fetchedLivraisons;
-        nombreTotalLivraisons =totalLivraisons;
-        nombreProduitsLivres = 0 ;//livraisons.where((livraison) =>  Add condition for produits livres ).length;
-        nombreRetours = 0 ; //livraisons.where((livraison) => Add condition for retours ).length;
-      });
-    } catch (error) {
-      print('Erreur lors de la récupération des livraisons: $error');
-    }
-  }
-
-  Future<void> supprimerLivraison(Livraison livraison) async {
-    try {
-      await livraisonService.deleteLivraison(livraison.id);
-      fetchLivraisons(); // Refresh the livraisons list after deletion
-    } catch (error) {
-      print('Erreur lors de la suppression de la livraison: $error');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchLivraisons();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Tableau de bord de livraison'),
-      ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              DashboardCard(
-                title: 'Nombre total de livraisons',
-                value: nombreTotalLivraisons,
-              ),
-              DashboardCard(
-                title: 'Nombre de produits livrés',
-                value: nombreProduitsLivres,
-              ),
-              DashboardCard(
-                title: 'Nombre de retours',
-                value: nombreRetours,
-              ),
-            ],
-          ),
-          Expanded(
-            child: LivraisonTable(
-              livraisons: livraisons,
-              onDelete: supprimerLivraison,
             ),
           ),
         ],
       ),
     );
   }
-}*/
+}
+
+
+
+
+
 /*import 'package:admin/constants.dart';
 import 'package:admin/models/livraison.dart';
 import 'package:admin/screens/dashboard/livraison_table.dart';

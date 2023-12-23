@@ -178,27 +178,9 @@ class _DashboardPCState extends State<DashboardPC> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                DashboardCard(
-                  title: 'Nombre total',
-                  value: nombreTotalPointCollecte,
-                ),
-                DashboardCard(
-                  title: 'Actif',
-                  value: nombrePointCollecteActif,
-                  valueStyle: TextStyle(
-                    color: Color(0xFF26E5FF),
-                  ),
-                ),
-                DashboardCard(
-                  title: 'Inactif',
-                  value: nombrePointCollecteInactif,
-                  valueStyle: TextStyle(
-                    color: Color(0xFFEE2727),
-                  ),
-                ),
-                Container(
+                                Container(
                   height: 200,
-                  width: 200,
+                  width: double.infinity,
                   padding: EdgeInsets.all(16),
                   child: PieChart(
                     PieChartData(
@@ -206,14 +188,47 @@ class _DashboardPCState extends State<DashboardPC> {
                     ),
                   ),
                 ),
-                ElevatedButton(
+                Container(
+                  width: double.infinity, // Utiliser la largeur maximale
+                  child: DashboardCard(
+                    title: 'Nombre total',
+                    value: nombreTotalPointCollecte,
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  child: DashboardCard(
+                    title: 'Actif',
+                    value: nombrePointCollecteActif,
+                    valueStyle: TextStyle(
+                      color: Color(0xFF26E5FF),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  child: DashboardCard(
+                    title: 'Inactif',
+                    value: nombrePointCollecteInactif,
+                    valueStyle: TextStyle(
+                      color: Color(0xFFEE2727),
+                    ),
+                  ),
+                ),
+
+                /*ElevatedButton(
                   onPressed: naviguerVersAjoutPointCollecte,
                   child: Text('Ajouter un Point de Collecte'),
-                ),
+                ),*/
               ],
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: naviguerVersAjoutPointCollecte,
+        tooltip: 'Ajouter un Point de Collecte',
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -224,13 +239,13 @@ class _DashboardPCState extends State<DashboardPC> {
         color: Color(0xFF26E5FF),
         value: nombrePointCollecteActif.toDouble(),
         title: 'Actif',
-        radius: 30,
+        radius: 22,
       ),
       PieChartSectionData(
         color: Color(0xFFEE2727),
         value: nombrePointCollecteInactif.toDouble(),
         title: 'Inactif',
-        radius: 30,
+        radius: 16,
       ),
     ];
   }

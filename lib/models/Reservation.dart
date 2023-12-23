@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:translator/translator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReservationPage extends StatefulWidget {
   @override
@@ -13,21 +14,24 @@ class _ReservationPageState extends State<ReservationPage> {
   List<ReservationItem> allReservations = [];
   List<ReservationItem> displayedReservations = [];
   String selectedLanguage = 'fr';
+  late Future<SharedPreferences> _prefs;
 
   @override
   void initState() {
     super.initState();
+    _prefs = SharedPreferences.getInstance();
     fetchData();
   }
 
   Future<void> fetchData() async {
     try {
+      final SharedPreferences prefs = await _prefs;
       final response = await http.get(Uri.parse('http://localhost:5000/api/reservation/'));
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body)['reservations'];
         setState(() {
           allReservations = List<ReservationItem>.from(
-            responseData.map((reservation) => ReservationItem.fromJson(reservation)),
+            responseData.map((reservation) => ReservationItem.fromJson(reservation, prefs)),
           );
           displayedReservations = List.from(allReservations);
         });
@@ -44,7 +48,7 @@ class _ReservationPageState extends State<ReservationPage> {
 
     for (int i = 0; i < allReservations.length; i++) {
       Translation translation = await translator.translate(allReservations[i].commentaire, to: selectedLanguage);
-      await Future.delayed(Duration(milliseconds: 500)); // Ajout d'un délai de 500 ms
+      await Future.delayed(Duration(milliseconds: 500));
       setState(() {
         allReservations[i].commentaire = translation.text;
       });
@@ -52,7 +56,7 @@ class _ReservationPageState extends State<ReservationPage> {
   }
 
   Future<void> _showLanguageSelectorPopup() async {
-    String selectedLanguage = 'fr'; // Default language is French
+    String selectedLanguage = 'fr';
 
     await showDialog<String>(
       context: context,
@@ -158,7 +162,14 @@ class _ReservationPageState extends State<ReservationPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Date du Commentaire: ${reservation.dateCommentaire}'),
-            Text('Commentaire: ${reservation.commentaire}'),
+            Row(
+              children: [
+                Text('Commentaire: ${reservation.commentaire}'),
+                if (!reservation.valider) _buildTraiterButton(reservation),
+                if (reservation.valider) _buildValiderIcon(),
+                if (!reservation.valider && !reservation.reprocessable) _buildCrossIcon(reservation),
+              ],
+            ),
           ],
         ),
       ),
@@ -184,13 +195,35 @@ class _ReservationPageState extends State<ReservationPage> {
         shadowColor: selectedLanguage == languageCode ? Colors.black : Colors.transparent,
       ),
       onPressed: () async {
-        await Future.delayed(Duration(milliseconds: 500)); // Ajout d'un délai de 500 ms
+        await Future.delayed(Duration(milliseconds: 500));
         setState(() {
           selectedLanguage = languageCode;
         });
         translateAllCommentaires();
       },
       child: Text(language),
+    );
+  }
+
+  Widget _buildTraiterButton(ReservationItem reservation) {
+    return IconButton(
+      onPressed: () {
+        _showTraiterPopup(reservation);
+      },
+      icon: Icon(Icons.edit),
+    );
+  }
+
+  Widget _buildValiderIcon() {
+    return Icon(Icons.check, color: Colors.green);
+  }
+
+  Widget _buildCrossIcon(ReservationItem reservation) {
+    return IconButton(
+      onPressed: () {
+        _reprocessComment(reservation);
+      },
+      icon: Icon(Icons.clear, color: Colors.red),
     );
   }
 
@@ -203,24 +236,101 @@ class _ReservationPageState extends State<ReservationPage> {
           .toList();
     });
   }
+
+  void _showTraiterPopup(ReservationItem reservation) async {
+    bool? valider = await showDialog<bool?>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Traitement du Commentaire'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Valider ce commentaire ?'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    child: Icon(
+                      Icons.clear,
+                      color: Colors.red,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (valider != null) {
+      handleComment(reservation.reservationId, valider);
+    }
+  }
+
+  void _reprocessComment(ReservationItem reservation) {
+    // Add your logic here for reprocessing the comment
+    // You can set the reprocessable property to false if the comment is successfully reprocessed
+    setState(() {
+      reservation.reprocessable = false;
+    });
+  }
+
+  void handleComment(String reservationId, bool valider) async {
+    final SharedPreferences prefs = await _prefs;
+
+    prefs.setBool('$reservationId-valider', valider);
+
+    setState(() {
+      final index = allReservations.indexWhere((reservation) => reservation.reservationId == reservationId);
+      if (index != -1) {
+        allReservations[index].valider = valider;
+        filterReservations(_searchController.text);
+      }
+    });
+  }
 }
 
 class ReservationItem {
   final String reservationId;
   final String dateCommentaire;
   String commentaire;
+  bool valider;
+  bool reprocessable;
 
   ReservationItem({
     required this.reservationId,
     required this.dateCommentaire,
     required this.commentaire,
+    this.valider = false,
+    this.reprocessable = false,
   });
 
-  factory ReservationItem.fromJson(Map<String, dynamic> json) {
+  factory ReservationItem.fromJson(Map<String, dynamic> json, SharedPreferences prefs) {
     return ReservationItem(
       reservationId: json['_id'],
       dateCommentaire: json['dateReservation'],
       commentaire: json['commentaire'],
+      valider: prefs.getBool('${json['_id']}-valider') ?? false,
     );
   }
 }

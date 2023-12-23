@@ -16,6 +16,8 @@ class _PanierPageState extends State<PanierPage> {
     'Terminé': 0,
     'Annulé': 0,
   };
+  Map<String, dynamic>? panierDetails;
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -58,6 +60,44 @@ class _PanierPageState extends State<PanierPage> {
     }
   }
 
+  void updatePanierDetails(String panierId) async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:5000/api/panier/$panierId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic>? responseData = jsonDecode(response.body)['panier'];
+
+        if (responseData != null) {
+          // Mettez à jour les détails du panier affichés dans le widget
+          setState(() {
+            panierDetails = responseData;
+          });
+
+          print('Détails du panier: $responseData');
+        } else {
+          print('Error: Panier details not found');
+        }
+      } else {
+        throw Exception('Failed to load panier details');
+      }
+    } catch (error) {
+      print('Error updating panier details: $error');
+    }
+  }
+
+  Future<void> deletePanier(String panierId) async {
+    try {
+      final response = await http.delete(Uri.parse('http://localhost:5000/api/panier/$panierId'));
+      if (response.statusCode == 200) {
+        print('Panier deleted successfully');
+        // You can add any additional logic after successful deletion
+      } else {
+        throw Exception('Failed to delete panier');
+      }
+    } catch (error) {
+      print('Error deleting panier: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,61 +115,68 @@ class _PanierPageState extends State<PanierPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
           children: [
             // Widget pour les détails du panier
-            Container(
-              color: Colors.black,
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Détail Panier',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'ID du Panier',
-                      border: OutlineInputBorder(),
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: Colors.black,
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Détail Panier',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          print('Bouton Modifier appuyé');
-                        },
-                        child: Text('Modifier le panier'),
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.blue.shade700),
-                        ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (panierId) {
+                        updatePanierDetails(panierId);
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'ID du Panier',
+                        border: OutlineInputBorder(),
                       ),
-                      SizedBox(width: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          print('Bouton Supprimer appuyé');
-                        },
-                        child: Text('Supprimer'),
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.red),
-                        ),
+                    ),
+                    SizedBox(height: 16),
+                    // Widget pour afficher les détails du panier
+                    if (panierDetails != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('ID: ${panierDetails!['_id']}'),
+                          Text('Total Panier: ${panierDetails!['totalPanier']}'),
+                          Text('État Panier: ${panierDetails!['etatPanier']}'),
+                          // Ajoutez d'autres détails du panier ici
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Action pour le bouton Supprimer
+                        if (_searchController.text.isNotEmpty) {
+                          deletePanier(_searchController.text);
+                        }
+                      },
+                      child: Text('Supprimer'),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
             // Widget pour les statistiques (graphique)
             Expanded(
+              flex: 2,
               child: Container(
-                margin: EdgeInsets.only(top: 16),
-                color: Colors.grey.shade200,
+                margin: EdgeInsets.only(left: 16),
+                color: Colors.black,
                 padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -140,53 +187,52 @@ class _PanierPageState extends State<PanierPage> {
                     ),
                     // Ajoutez votre widget de graphique ici
                     Expanded(
-          
-                  child: BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: panierCounts.values.reduce((a, b) => a > b ? a : b).toDouble() + 1,
-                        titlesData: FlTitlesData(
-                          leftTitles: SideTitles(showTitles: true, interval: 1),
-                          bottomTitles: SideTitles(
-                            showTitles: true,
-                            rotateAngle: 45,
-                            getTitles: (double value) {
-                              final index = value.toInt();
-                              final etats = panierCounts.keys.toList();
-                              if (index >= 0 && index < etats.length) {
-                                return etats[index];
-                              }
-                              return '';
-                            },
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: panierCounts.values.reduce((a, b) => a > b ? a : b).toDouble() + 1,
+                          titlesData: FlTitlesData(
+                            leftTitles: SideTitles(showTitles: true, interval: 1),
+                            bottomTitles: SideTitles(
+                              showTitles: true,
+                              rotateAngle: 45,
+                              getTitles: (double value) {
+                                final index = value.toInt();
+                                final etats = panierCounts.keys.toList();
+                                if (index >= 0 && index < etats.length) {
+                                  return etats[index];
+                                }
+                                return '';
+                              },
+                            ),
                           ),
+                          borderData: FlBorderData(show: true),
+                          barGroups: [
+                            BarChartGroupData(
+                              x: 0,
+                              barRods: [BarChartRodData(y: panierCounts['En cours']!.toDouble(), colors: [Colors.blue], width: 16)],
+                              showingTooltipIndicators: [0],
+                            ),
+                            BarChartGroupData(
+                              x: 1,
+                              barRods: [BarChartRodData(y: panierCounts['Validé']!.toDouble(), colors: [Colors.green], width: 16)],
+                              showingTooltipIndicators: [0],
+                            ),
+                            BarChartGroupData(
+                              x: 2,
+                              barRods: [BarChartRodData(y: panierCounts['Terminé']!.toDouble(), colors: [Colors.orange], width: 16)],
+                              showingTooltipIndicators: [0],
+                            ),
+                            BarChartGroupData(
+                              x: 3,
+                              barRods: [BarChartRodData(y: panierCounts['Annulé']!.toDouble(), colors: [Colors.red], width: 16)],
+                              showingTooltipIndicators: [0],
+                            ),
+                          ],
                         ),
-                        borderData: FlBorderData(show: true),
-                        barGroups: [
-                          BarChartGroupData(
-                            x: 0,
-                            barRods: [BarChartRodData(y: panierCounts['En cours']!.toDouble(), colors: [Colors.blue], width: 16)],
-                            showingTooltipIndicators: [0],
-                          ),
-                          BarChartGroupData(
-                            x: 1,
-                            barRods: [BarChartRodData(y: panierCounts['Validé']!.toDouble(), colors: [Colors.green], width: 16)],
-                            showingTooltipIndicators: [0],
-                          ),
-                          BarChartGroupData(
-                            x: 2,
-                            barRods: [BarChartRodData(y: panierCounts['Terminé']!.toDouble(), colors: [Colors.orange], width: 16)],
-                            showingTooltipIndicators: [0],
-                          ),
-                          BarChartGroupData(
-                            x: 3,
-                            barRods: [BarChartRodData(y: panierCounts['Annulé']!.toDouble(), colors: [Colors.red], width: 16)],
-                            showingTooltipIndicators: [0],
-                          ),
-                        ],
                       ),
                     ),
-                ),
-                ],
+                  ],
                 ),
               ),
             ),
@@ -195,4 +241,10 @@ class _PanierPageState extends State<PanierPage> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: PanierPage(),
+  ));
 }

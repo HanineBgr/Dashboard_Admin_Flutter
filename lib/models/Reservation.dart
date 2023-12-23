@@ -180,7 +180,7 @@ class _ReservationPageState extends State<ReservationPage> {
   Widget _buildLanguageButton(String language, String languageCode, Color color) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        primary: selectedLanguage == languageCode ? color : Colors.grey,
+        primary: selectedLanguage == languageCode ? color : Colors.indigo.shade300,
         shadowColor: selectedLanguage == languageCode ? Colors.black : Colors.transparent,
       ),
       onPressed: () async {

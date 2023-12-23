@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'package:admin/models/livraison.dart';
+
 import 'package:http/http.dart' as http;
 
 class LivraisonService {
@@ -28,13 +29,24 @@ Future<void> deleteLivraison(String id) async {
     throw Exception('Failed to delete Livraison');
   }
 }
-Future<int> countLiv()async {
+
+Future<int> countLiv() async {
   final response = await http.get(Uri.parse('http://localhost:5000/livraison/countLiv'));
   if (response.statusCode == 200) {
-    final dynamic data =  json.decode(response.body);
-    return data['totalLivraisons'] as int;
+    final dynamic data = json.decode(response.body);
+    // Utilisez l'opérateur null-aware ?? pour fournir une valeur par défaut de 0 si les données sont null
+    return data['totalLivraisons'] as int ?? 0;
   } else {
     throw Exception('Erreur lors de la récupération du nombre total de Livraisons');
   }
+}
+Future<int> getStatLiv() async {
+  final response = await http.get(Uri.parse('http://localhost:5000/livraison/livraison_livree'));
+    if (response.statusCode == 200) {
+    final dynamic data = json.decode(response.body);
+    return data['totalLivree'] as int ?? 0;
+    }else {
+      throw Exception("err");
+    }
 }
 }

@@ -250,7 +250,6 @@ class _AjoutPointCollecteState extends State<AjoutPointCollecte> {
   void initState() {
     super.initState();
     if (widget.pointToUpdate != null) {
-      // Pré-remplir les champs si vous mettez à jour un point de collecte
       _nomPcController.text = widget.pointToUpdate!.nomPc;
       _addressMailPcController.text = widget.pointToUpdate!.addressMailPc;
       _addressPcController.text = widget.pointToUpdate!.addressPc;

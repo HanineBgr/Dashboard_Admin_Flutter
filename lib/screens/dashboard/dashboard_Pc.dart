@@ -1,5 +1,6 @@
-import 'package:fl_chart/fl_chart.dart';
+/*import 'package:admin/screens/dashboard/dashboard_card.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:admin/models/PointCollecte.dart';
 import 'package:admin/screens/dashboard/formulaire_pc.dart';
 import 'package:admin/screens/dashboard/pc_table.dart';
@@ -22,16 +23,16 @@ class _DashboardPCState extends State<DashboardPC> {
     try {
       List<PointCollecte> fetchedPC =
           await pointCollecteService.getPointsCollecte();
-          int totalPoints = (await pointCollecteService.countTotalPoints()) ?? 0;
-          int inactivePoints = (await pointCollecteService.countInactivePoints()) ?? 0;
-/*
-      int totalPoints = await pointCollecteService.countTotalPoints();
-      int inactivePoints = await pointCollecteService.countInactivePoints();*/
+      int totalPoints = (await pointCollecteService.countTotalPoints()) ?? 0;
+      int inactivePoints =
+          (await pointCollecteService.countInactivePoints()) ?? 0;
+      int activePoints =
+          await pointCollecteService.countActivePoints() ?? 0;
 
       setState(() {
         pointsCollecte = fetchedPC;
         nombreTotalPointCollecte = totalPoints;
-        nombrePointCollecteActif = 0; // Laissez-le à 0 pour le moment
+        nombrePointCollecteActif = activePoints;
         nombrePointCollecteInactif = inactivePoints;
       });
     } catch (error) {
@@ -47,7 +48,7 @@ class _DashboardPCState extends State<DashboardPC> {
 
       setState(() {
         pointsCollecte.remove(pointCollecte);
-        nombreTotalPointCollecte = totalPoints; // Mettez à jour le total
+        nombreTotalPointCollecte = totalPoints;
       });
 
       print('Point de collecte supprimé : ${pointCollecte.nomPc}');
@@ -77,7 +78,7 @@ class _DashboardPCState extends State<DashboardPC> {
 
       setState(() {
         pointsCollecte.add(pointCree);
-        nombreTotalPointCollecte = totalPoints; // Mettez à jour le total
+        nombreTotalPointCollecte = totalPoints;
       });
 
       print('Nouveau Point de collecte ajouté : ${nouveauPointCollecte.nomPc}');
@@ -133,9 +134,27 @@ class _DashboardPCState extends State<DashboardPC> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildStatCard('Nombre total', nombreTotalPointCollecte),
-              _buildStatCard('Actif', nombrePointCollecteActif),
-              _buildStatCard('Inactif', nombrePointCollecteInactif),
+              DashboardCard(
+                title: 'Nombre total',
+                value: nombreTotalPointCollecte,
+                
+              ),
+              DashboardCard(
+                title: 'Actif',
+                value: nombrePointCollecteActif,
+                valueStyle: TextStyle(
+                  color: Color(0xFF26E5FF),
+                ),
+      
+              ),
+              DashboardCard(
+                title: 'Inactif',
+                value: nombrePointCollecteInactif,
+                valueStyle: TextStyle(
+                  color: Color(0xFFEE2727),
+                ),
+                
+              ),
             ],
           ),
           Expanded(
@@ -154,7 +173,7 @@ class _DashboardPCState extends State<DashboardPC> {
                     sectionsSpace: 0,
                     centerSpaceRadius: 70,
                     startDegreeOffset: -90,
-                    sections: paiChartSelectionData,
+                    sections: getPieChartSelectionData(),
                   ),
                 ),
                 Positioned.fill(
@@ -187,41 +206,488 @@ class _DashboardPCState extends State<DashboardPC> {
     );
   }
 
-  Widget _buildStatCard(String title, int value) {
-    return Container(
-      width: 200,
-      height: 200,
-      child: Card(
-        elevation: 5,
-        margin: EdgeInsets.all(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Text(title),
-              Text('$value'),
-            ],
-          ),
+List<PieChartSectionData> getPieChartSelectionData() {
+  return [
+    PieChartSectionData(
+      color: Color(0xFF26E5FF),
+      value: nombrePointCollecteActif.toDouble(),
+      title: 'Actif',
+      radius: 30,
+    ),
+    PieChartSectionData(
+      color: Color(0xFFEE2727),
+      value: nombrePointCollecteInactif.toDouble(),
+      title: 'Inactif',
+      radius: 30,
+    ),
+  ];
+}
+}*/
+import 'package:admin/screens/dashboard/dashboard_card.dart';
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:admin/models/PointCollecte.dart';
+import 'package:admin/screens/dashboard/formulaire_pc.dart';
+import 'package:admin/screens/dashboard/pc_table.dart';
+import 'package:admin/screens/dashboard/services/pc_services.dart';
+
+class DashboardPC extends StatefulWidget {
+  @override
+  _DashboardPCState createState() => _DashboardPCState();
+}
+
+class _DashboardPCState extends State<DashboardPC> {
+  PointCollecteService pointCollecteService =
+      PointCollecteService(baseUrl: 'http://localhost:5000');
+  List<PointCollecte> pointsCollecte = [];
+  int nombreTotalPointCollecte = 0;
+  int nombrePointCollecteActif = 0;
+  int nombrePointCollecteInactif = 0;
+
+  Future<void> fetchPc() async {
+    try {
+      List<PointCollecte> fetchedPC =
+          await pointCollecteService.getPointsCollecte();
+      int totalPoints = (await pointCollecteService.countTotalPoints()) ?? 0;
+      int inactivePoints =
+          (await pointCollecteService.countInactivePoints()) ?? 0;
+      int activePoints =
+          await pointCollecteService.countActivePoints() ?? 0;
+
+      setState(() {
+        pointsCollecte = fetchedPC;
+        nombreTotalPointCollecte = totalPoints;
+        nombrePointCollecteActif = activePoints;
+        nombrePointCollecteInactif = inactivePoints;
+      });
+    } catch (error) {
+      print('Erreur lors de la récupération des Point Collecte: $error');
+    }
+  }
+
+  Future<void> fetchStatistics() async {
+    try {
+      int totalPoints = (await pointCollecteService.countTotalPoints()) ?? 0;
+      int inactivePoints =
+          (await pointCollecteService.countInactivePoints()) ?? 0;
+      int activePoints =
+          await pointCollecteService.countActivePoints() ?? 0;
+
+      setState(() {
+        nombreTotalPointCollecte = totalPoints;
+        nombrePointCollecteActif = activePoints;
+        nombrePointCollecteInactif = inactivePoints;
+      });
+    } catch (error) {
+      print('Erreur lors de la récupération des statistiques: $error');
+    }
+  }
+
+  Future<void> supprimerPointCollecte(PointCollecte pointCollecte) async {
+    try {
+      await pointCollecteService.deletePointCollecte(pointCollecte.id);
+
+      await fetchStatistics(); // Update statistics
+
+      setState(() {
+        pointsCollecte.remove(pointCollecte);
+      });
+
+      print('Point de collecte supprimé : ${pointCollecte.nomPc}');
+    } catch (error) {
+      print('Erreur lors de la suppression du point de collecte : $error');
+    }
+  }
+
+  void modifierPointCollecte(PointCollecte pointCollecte) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AjoutPointCollecte(
+          onAjouter: mettreAjourPointCollecte,
+          pointToUpdate: pointCollecte,
         ),
       ),
     );
   }
+
+  void ajouterPointCollecte(PointCollecte nouveauPointCollecte) async {
+    try {
+      PointCollecte pointCree =
+          await pointCollecteService.createPointCollecte(nouveauPointCollecte);
+
+      await fetchStatistics(); // Update statistics
+
+      setState(() {
+        pointsCollecte.add(pointCree);
+      });
+
+      print('Nouveau Point de collecte ajouté : ${nouveauPointCollecte.nomPc}');
+    } catch (error) {
+      print('Erreur lors de l\'ajout du point de collecte : $error');
+    }
+  }
+
+  void naviguerVersAjoutPointCollecte() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AjoutPointCollecte(
+          onAjouter: ajouterPointCollecte,
+        ),
+      ),
+    );
+  }
+
+  void mettreAjourPointCollecte(PointCollecte updatedPointCollecte) async {
+    try {
+      PointCollecte pointMisAjour =
+          await pointCollecteService.updatePointCollecte(updatedPointCollecte);
+
+      setState(() {
+        int index =
+            pointsCollecte.indexWhere((pc) => pc.id == pointMisAjour.id);
+        if (index != -1) {
+          pointsCollecte[index] = pointMisAjour;
+        }
+      });
+
+      print('Point de collecte mis à jour : ${pointMisAjour.nomPc}');
+    } catch (error) {
+      print('Erreur lors de la mise à jour du point de collecte : $error');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPc();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Tableau de bord des points de collecte'),
+      ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              DashboardCard(
+                title: 'Nombre total',
+                value: nombreTotalPointCollecte,
+              ),
+              DashboardCard(
+                title: 'Actif',
+                value: nombrePointCollecteActif,
+                valueStyle: TextStyle(
+                  color: Color(0xFF26E5FF),
+                ),
+              ),
+              DashboardCard(
+                title: 'Inactif',
+                value: nombrePointCollecteInactif,
+                valueStyle: TextStyle(
+                  color: Color(0xFFEE2727),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: PointCollecteTable(
+              pointsCollecte: pointsCollecte,
+              onDelete: supprimerPointCollecte,
+              onEdit: modifierPointCollecte,
+              onTableRefresh: fetchPc, // Pass the callback function here
+            ),
+          ),
+          SizedBox(
+            height: 200,
+            child: Stack(
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 70,
+                    startDegreeOffset: -90,
+                    sections: getPieChartSelectionData(),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 16),
+                      Text(
+                        '$nombreTotalPointCollecte',
+                        style: Theme.of(context).textTheme.headline6!.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              height: 0.5,
+                            ),
+                      ),
+                      Text("Total Points de Collecte"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: naviguerVersAjoutPointCollecte,
+        tooltip: 'Ajouter un Point de Collecte',
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> getPieChartSelectionData() {
+    return [
+      PieChartSectionData(
+        color: Color(0xFF26E5FF),
+        value: nombrePointCollecteActif.toDouble(),
+        title: 'Actif',
+        radius: 30,
+      ),
+      PieChartSectionData(
+        color: Color(0xFFEE2727),
+        value: nombrePointCollecteInactif.toDouble(),
+        title: 'Inactif',
+        radius: 30,
+      ),
+    ];
+  }
 }
 
-List<PieChartSectionData> paiChartSelectionData = [
-  PieChartSectionData(
-    color: Color(0xFF26E5FF),
-    value: 5,
-    title: '',
-    radius: 22,
-  ),
-  PieChartSectionData(
-    color: Color(0xFFEE2727),
-    value: 1,
-    title: '',
-    radius: 16,
-  ),
-];
+/*
+import 'package:admin/screens/dashboard/dashboard_card.dart';
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:admin/models/PointCollecte.dart';
+import 'package:admin/screens/dashboard/formulaire_pc.dart';
+import 'package:admin/screens/dashboard/pc_table.dart';
+import 'package:admin/screens/dashboard/services/pc_services.dart';
+
+class DashboardPC extends StatefulWidget {
+  @override
+  _DashboardPCState createState() => _DashboardPCState();
+}
+
+class _DashboardPCState extends State<DashboardPC> {
+  PointCollecteService pointCollecteService =
+      PointCollecteService(baseUrl: 'http://localhost:5000');
+  List<PointCollecte> pointsCollecte = [];
+  int nombreTotalPointCollecte = 0;
+  int nombrePointCollecteActif = 0;
+  int nombrePointCollecteInactif = 0;
+
+  Future<void> fetchPc() async {
+    try {
+      List<PointCollecte> fetchedPC =
+          await pointCollecteService.getPointsCollecte();
+      int totalPoints = (await pointCollecteService.countTotalPoints()) ?? 0;
+      int inactivePoints =
+          (await pointCollecteService.countInactivePoints()) ?? 0;
+      int activePoints =
+          await pointCollecteService.countActivePoints() ?? 0;
+
+      setState(() {
+        pointsCollecte = fetchedPC;
+        nombreTotalPointCollecte = totalPoints;
+        nombrePointCollecteActif = activePoints;
+        nombrePointCollecteInactif = inactivePoints;
+      });
+    } catch (error) {
+      print('Erreur lors de la récupération des Point Collecte: $error');
+    }
+  }
+
+  Future<void> supprimerPointCollecte(PointCollecte pointCollecte) async {
+    try {
+      await pointCollecteService.deletePointCollecte(pointCollecte.id);
+
+      int totalPoints = await pointCollecteService.countTotalPoints();
+
+      setState(() {
+        pointsCollecte.remove(pointCollecte);
+        nombreTotalPointCollecte = totalPoints;
+      });
+
+      print('Point de collecte supprimé : ${pointCollecte.nomPc}');
+    } catch (error) {
+      print('Erreur lors de la suppression du point de collecte : $error');
+    }
+  }
+
+  void modifierPointCollecte(PointCollecte pointCollecte) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AjoutPointCollecte(
+          onAjouter: mettreAjourPointCollecte,
+          pointToUpdate: pointCollecte,
+        ),
+      ),
+    );
+  }
+
+  void ajouterPointCollecte(PointCollecte nouveauPointCollecte) async {
+    try {
+      PointCollecte pointCree =
+          await pointCollecteService.createPointCollecte(nouveauPointCollecte);
+
+      int totalPoints = await pointCollecteService.countTotalPoints();
+
+      setState(() {
+        pointsCollecte.add(pointCree);
+        nombreTotalPointCollecte = totalPoints;
+      });
+
+      print('Nouveau Point de collecte ajouté : ${nouveauPointCollecte.nomPc}');
+    } catch (error) {
+      print('Erreur lors de l\'ajout du point de collecte : $error');
+    }
+  }
+
+  void naviguerVersAjoutPointCollecte() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AjoutPointCollecte(
+          onAjouter: ajouterPointCollecte,
+        ),
+      ),
+    );
+  }
+
+  void mettreAjourPointCollecte(PointCollecte updatedPointCollecte) async {
+    try {
+      PointCollecte pointMisAjour =
+          await pointCollecteService.updatePointCollecte(updatedPointCollecte);
+
+      setState(() {
+        int index =
+            pointsCollecte.indexWhere((pc) => pc.id == pointMisAjour.id);
+        if (index != -1) {
+          pointsCollecte[index] = pointMisAjour;
+        }
+      });
+
+      print('Point de collecte mis à jour : ${pointMisAjour.nomPc}');
+    } catch (error) {
+      print('Erreur lors de la mise à jour du point de collecte : $error');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPc();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Tableau de bord des points de collecte'),
+      ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              DashboardCard(
+                title: 'Nombre total',
+                value: nombreTotalPointCollecte,
+              ),
+              DashboardCard(
+                title: 'Actif',
+                value: nombrePointCollecteActif,
+                valueStyle: TextStyle(
+                  color: Color(0xFF26E5FF),
+                ),
+              ),
+              DashboardCard(
+                title: 'Inactif',
+                value: nombrePointCollecteInactif,
+                valueStyle: TextStyle(
+                  color: Color(0xFFEE2727),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: PointCollecteTable(
+              pointsCollecte: pointsCollecte,
+              onDelete: supprimerPointCollecte,
+              onEdit: modifierPointCollecte,
+              onTableRefresh: fetchPc, // Pass the callback function here
+            ),
+          ),
+          SizedBox(
+            height: 200,
+            child: Stack(
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 70,
+                    startDegreeOffset: -90,
+                    sections: getPieChartSelectionData(),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 16),
+                      Text(
+                        '$nombreTotalPointCollecte',
+                        style: Theme.of(context).textTheme.headline6!.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              height: 0.5,
+                            ),
+                      ),
+                      Text("Total Points de Collecte"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: naviguerVersAjoutPointCollecte,
+        tooltip: 'Ajouter un Point de Collecte',
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> getPieChartSelectionData() {
+    return [
+      PieChartSectionData(
+        color: Color(0xFF26E5FF),
+        value: nombrePointCollecteActif.toDouble(),
+        title: 'Actif',
+        radius: 30,
+      ),
+      PieChartSectionData(
+        color: Color(0xFFEE2727),
+        value: nombrePointCollecteInactif.toDouble(),
+        title: 'Inactif',
+        radius: 30,
+      ),
+    ];
+  }
+}*/
+
 
 
 

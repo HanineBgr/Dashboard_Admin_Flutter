@@ -59,7 +59,7 @@ DrawerListTile(
   press: (){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context)=> GoogleMapsScreen()),
+      MaterialPageRoute(builder: (context)=> LocalMap()),
     );
   },
 ),

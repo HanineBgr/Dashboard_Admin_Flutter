@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'package:admin/models/livraison.dart';
 import 'package:admin/models/livreur.dart';
-
 import 'package:http/http.dart' as http;
 
 class LivraisonService {
@@ -63,7 +62,47 @@ Future<int> countAndShowDeliveredLivraisons() async {
     throw error;
   }
 }
+Future<void> livrerLivraison(String id) async {
+  try {
+    final response = await http.post(
+      Uri.parse('http://localhost:5000/livraison/livraison_livree'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'idLivraison': id, 'etat': true}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Livraison effectuée avec succès');
+    } else {
+      print('Erreur lors de la livraison: ${response.statusCode}');
+      throw Exception('Erreur lors de la livraison');
+    }
+  } catch (error) {
+    print('Erreur lors de la livraison: $error');
+    throw error;
+  }
+}
+
 
 }
+/*
+  Future<void> livrerLivraison(String id) async {
+  try {
+    final response = await http.post(
+      Uri.parse('http://localhost:5000/livraison/livraison_livree'),
+      body: jsonEncode({'idLivraison': id}),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Livraison effectuée avec succès');
+    } else {
+      throw Exception('Échec de la mise à jour de l\'état de la livraison');
+    }
+  } catch (error) {
+    print('Erreur lors de la livraison: $error');
+    throw error;
+  }
+}
+}*/
 
 

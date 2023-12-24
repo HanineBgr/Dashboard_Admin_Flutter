@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 class LivraisonTable extends StatelessWidget {
   final List<Livraison> livraisons;
   final Function(Livraison) onDelete;
+  final Function(Livraison) onLivrer; // Ajout de la fonction pour gérer l'événement de livraison
 
-  LivraisonTable({required this.livraisons, required this.onDelete});
+  LivraisonTable({required this.livraisons, required this.onDelete, required this.onLivrer});
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal, // Permet le défilement horizontal
+      scrollDirection: Axis.horizontal,
       child: Center(
         child: Container(
           padding: EdgeInsets.all(16.0),
@@ -23,6 +24,7 @@ class LivraisonTable extends StatelessWidget {
               DataColumn(label: Text('Ville')),
               DataColumn(label: Text('Adresse Client')),
               DataColumn(label: Text('Actions')),
+              DataColumn(label: Text('Livrer')), // Nouvelle colonne pour le bouton Livrer
             ],
             rows: livraisons.map((livraison) {
               return DataRow(cells: [
@@ -39,7 +41,19 @@ class LivraisonTable extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () {
-                        onDelete(livraison); // Pass the specific Livraison instance
+                        onDelete(livraison);
+                      },
+                    ),
+                  ],
+                )),
+                DataCell(Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(width: 8.0),
+                    IconButton(
+                      icon: Icon(Icons.delivery_dining), // Utilisez l'icône appropriée pour la livraison
+                      onPressed: () {
+                        onLivrer(livraison);
                       },
                     ),
                   ],
@@ -52,3 +66,6 @@ class LivraisonTable extends StatelessWidget {
     );
   }
 }
+
+// ...
+

@@ -1,3 +1,5 @@
+import 'package:admin/models/Panier.dart';
+import 'package:admin/models/Reservation.dart';
 import 'package:admin/screens/dashboard/components/recent_Categories.dart';
 import 'package:admin/screens/dashboard/components/recent_articles.dart';
 import 'package:admin/screens/dashboard/components/recent_files.dart';
@@ -82,15 +84,24 @@ class SideMenu extends StatelessWidget {
             svgSrc: "assets/icons/menu_doc.svg",
             press: () {},
           ),
-          DrawerListTile(
+         DrawerListTile(
             title: "Réservation",
             svgSrc: "assets/icons/menu_notification.svg",
-            press: () {},
+           press:  () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ReservationPage()),
+    ); },
           ),
           DrawerListTile(
             title: "Panier",
             svgSrc: "assets/icons/menu_notification.svg",
-            press: () {},
+            press:  () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PanierPage()),
+    );
+  },
           ),
           DrawerListTile(
             title: "Settings",

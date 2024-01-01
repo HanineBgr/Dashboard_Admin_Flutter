@@ -53,7 +53,6 @@ class Event {
       'organizer': organizer,
       'interested': interested,
       'going': going,
-      'createdAt': createdAt,
       'latitudeaddress': latitudeaddress,
       'longitudeaddress': longitudeaddress,
 

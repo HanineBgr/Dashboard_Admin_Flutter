@@ -24,8 +24,8 @@ List demoRecentFiles = [
  RecentFile(
    id: "3",
    Nom: "Futur génération",
-   Adresse: "Bardo-Tunis",
-   Adresse_mail: "mariem.marsaoui@esprit.tn",
+   Adresse: "Bizerte",
+   Adresse_mail: "futur.generation@esprit.tn",
    telephone: "95463820",
    Role: "Organisation"
   ),

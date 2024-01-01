@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants.dart';
+import 'profileScreen.dart';
 
 class Header extends StatelessWidget {
   const Header({
@@ -28,7 +29,7 @@ class Header extends StatelessWidget {
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
         Expanded(child: SearchField()),
-        ProfileCard()
+        ProfileCard(),
       ],
     );
   }
@@ -62,9 +63,28 @@ class ProfileCard extends StatelessWidget {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-              child: Text("Hanine Bouguerra"),
+              child: Text("Profile"),
             ),
-          Icon(Icons.keyboard_arrow_down),
+          DropdownButton<String>(
+            icon: Icon(Icons.keyboard_arrow_down),
+            underline: SizedBox(), 
+            items: <String>['Show Profile'].map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              if (newValue == 'Show Profile') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(), 
+                  ),
+                );
+              }
+            },
+          ),
         ],
       ),
     );
@@ -103,3 +123,5 @@ class SearchField extends StatelessWidget {
     );
   }
 }
+
+

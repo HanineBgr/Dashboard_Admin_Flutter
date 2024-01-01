@@ -28,62 +28,69 @@ class _NewsListState extends State<NewsList> {
       constraints: BoxConstraints(
         maxHeight: 500, // Adjust the maximum height as needed
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Scraped News",
-            style: Theme.of(context).textTheme.titleMedium,
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height - 2 * defaultPadding,
           ),
-          SizedBox(
-            width: double.infinity,
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: widget.newslist.length,
-              separatorBuilder: (context, index) => Divider(),
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(widget.newslist[index].title!),
-                  subtitle: Text(widget.newslist[index].url!),
-                  trailing: PopupMenuButton<String>(
-                    itemBuilder: (context) => [
-                      PopupMenuItem<String>(
-                        value: 'Details',
-                        child: ListTile(
-                          leading: Icon(Icons.edit),
-                          iconColor: Colors.blue,
-                          title: Text('Details'),
-                          textColor: Colors.blue,
-                        ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Scraped News",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: widget.newslist.length,
+                  separatorBuilder: (context, index) => Divider(),
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(widget.newslist[index].title!),
+                      subtitle: Text(widget.newslist[index].url!),
+                      trailing: PopupMenuButton<String>(
+                        itemBuilder: (context) => [
+                          PopupMenuItem<String>(
+                            value: 'Details',
+                            child: ListTile(
+                              leading: Icon(Icons.edit),
+                              iconColor: Colors.blue,
+                              title: Text('Details'),
+                              textColor: Colors.blue,
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: ListTile(
+                              leading: Icon(Icons.delete),
+                              iconColor: Colors.red,
+                              title: Text('Delete'),
+                              textColor: Colors.red,
+                            ),
+                          ),
+                        ],
+                        onSelected: (value) {
+                          if (value == 'Details') {
+                            _navigateToDetailsScreen(widget.newslist[index]);
+                          } else if (value == 'delete') {
+                            // Call the deleteNews method
+                            NewsService.deleteNews(widget.newslist[index].id!);
+                            setState(() {
+                              widget.newslist.removeAt(index);
+                            });
+                            print('Delete News: ${widget.newslist[index].id}');
+                          }
+                        },
                       ),
-                      PopupMenuItem<String>(
-                        value: 'delete',
-                        child: ListTile(
-                          leading: Icon(Icons.delete),
-                          iconColor: Colors.red,
-                          title: Text('Delete'),
-                          textColor: Colors.red,
-                        ),
-                      ),
-                    ],
-                    onSelected: (value) {
-                      if (value == 'Details') {
-                        _navigateToDetailsScreen(widget.newslist[index]);
-                      } else if (value == 'delete') {
-                        // Call the deleteNews method
-                        NewsService.deleteNews(widget.newslist[index].id!);
-                        setState(() {
-                          widget.newslist.removeAt(index);
-                        });
-                        print('Delete News: ${widget.newslist[index].id}');
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

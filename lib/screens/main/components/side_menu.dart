@@ -6,6 +6,8 @@ import 'package:admin/screens/dashboard/components/recent_files.dart';
 import 'package:admin/screens/dashboard/components/loginScreen.dart';
 import 'package:admin/screens/Events/events_screen.dart';
 import 'package:admin/screens/News/news_screen.dart';
+import 'package:admin/screens/livraison/dashboard_livraison.dart';
+import 'package:admin/screens/pc/dashboard_Pc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -58,6 +60,26 @@ class SideMenu extends StatelessWidget {
             },
           ),
           DrawerListTile(
+  title: "Point Collecte",
+  svgSrc: "assets/icons/menu_notification.svg",
+  press: (){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context)=> DashboardPC()),
+    );
+  },
+),
+          DrawerListTile(
+            title: "Livraison",
+            svgSrc: "assets/icons/menu_doc.svg",
+            press: () {
+              Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context)=> DashboardLivraison()),
+    );
+  },
+),
+          DrawerListTile(
             title: "Evenements",
             svgSrc: "assets/icons/menu_store.svg",
             press: () {
@@ -79,11 +101,7 @@ class SideMenu extends StatelessWidget {
               );
             },
           ),
-          DrawerListTile(
-            title: "Livraison",
-            svgSrc: "assets/icons/menu_doc.svg",
-            press: () {},
-          ),
+
          DrawerListTile(
             title: "Réservation",
             svgSrc: "assets/icons/menu_notification.svg",

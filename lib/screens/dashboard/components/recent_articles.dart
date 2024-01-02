@@ -29,7 +29,7 @@ class _RecentArticlesState extends State<RecentArticles> {
     if (response.statusCode == 200) {
       final List<dynamic> responseData = json.decode(response.body);
       setState(() {
-       Articles = List<Map<String, dynamic>>.from(responseData);
+        Articles = List<Map<String, dynamic>>.from(responseData);
         userVisibility = List<bool>.filled(Articles.length, true);
       });
     } else {
@@ -37,6 +37,18 @@ class _RecentArticlesState extends State<RecentArticles> {
     }
   }
 
+  Future<void> deleteArticle(String articleId) async {
+    final url = Uri.parse('http://localhost:5000/api/articles/$articleId');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      // Successful deletion, update the UI or handle accordingly
+      print('Article deleted successfully');
+      fetchArticles(); // Refresh the articles after deletion
+    } else {
+      print('Failed to delete article: ${response.statusCode}');
+    }
+  }
 
   @override
   void initState() {
@@ -56,7 +68,7 @@ class _RecentArticlesState extends State<RecentArticles> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Catégories",
+            "Articles",
             style: Theme.of(context).textTheme.titleMedium,
           ),
           SizedBox(height: 20),
@@ -68,44 +80,56 @@ class _RecentArticlesState extends State<RecentArticles> {
                 width: MediaQuery.of(context).size.width,
                 child: DataTable(
                   columns: [
-                   // DataColumn(label: Text('Visibility')),
-                   DataColumn(label: Text('Nom')),
-                   DataColumn(label: Text('Description')),
-                   DataColumn(label: Text('Etat')),        
-                   DataColumn(label: Text('Catégorie')),
-
+                    DataColumn(label: Text('Photo')),
+                    DataColumn(label: Text('Nom')),
+                    DataColumn(label: Text('Description')),
+                    DataColumn(label: Text('Etat')),
+                    DataColumn(label: Text('Catégorie')),
+                    DataColumn(label: Text('Actions')),
                   ],
                   rows: List<DataRow>.generate(Articles.length, (index) {
                     return DataRow(cells: [
-                      
+                      DataCell(
+                        userVisibility[index]
+                            ? Image.network(
+                                Articles[index]['PhotoArticle'] ?? '',
+                                width: 50, // Adjust the width as needed
+                                height: 50, // Adjust the height as needed
+                                fit: BoxFit.cover,
+                              )
+                            : SizedBox(),
+                      ),
                       DataCell(
                         userVisibility[index]
                             ? Text(Articles[index]['NomArticle'] ?? 'N/A')
                             : SizedBox(),
                       ),
-                       DataCell(
+                      DataCell(
                         userVisibility[index]
-                            ? Text(Articles[index]['DescriptionArticle'] ?? 'N/A')
+                            ? Text(
+                                Articles[index]['DescriptionArticle'] ?? 'N/A')
                             : SizedBox(),
                       ),
-                       DataCell(
+                      DataCell(
                         userVisibility[index]
                             ? Text(Articles[index]['EtatArticle'] ?? 'N/A')
                             : SizedBox(),
                       ),
-                       DataCell(
+                      DataCell(
                         userVisibility[index]
-                            ? Text(Articles[index]['CategorieId'] ?? 'N/A')
+                            ? Text(Articles[index]['Categorie']
+                                    ['NomCategorie'] ??
+                                'N/A')
                             : SizedBox(),
                       ),
-                     /* DataCell(
-                        userVisibility[index]
-                            ? Text(Articles[index]['NbreTotalArticles'] ?? 'N/A')
-                            : SizedBox(),
+                      DataCell(
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            deleteArticle(Articles[index]['_id']);
+                          },
+                        ),
                       ),
-                     */
-
-                     
                     ]);
                   }),
                 ),

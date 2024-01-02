@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:admin/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:admin/screens/dashboard/components/CategoryForm.dart';
 
 class RecentCategories extends StatefulWidget {
   const RecentCategories({Key? key}) : super(key: key);
@@ -29,11 +30,28 @@ class _RecentCategoriesState extends State<RecentCategories> {
     }
   }
 
+  Future<void> deleteCategory(String categorieId) async {
+    final url = Uri.parse('http://localhost:5000/api/categories/$categorieId');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      // Successful deletion, update the UI or handle accordingly
+      print('Category deleted successfully');
+      fetchcategories(); // Refresh the categories after deletion
+    } else {
+      print('Failed to delete category: ${response.statusCode}');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     fetchcategories();
+  }
+
+  void navigateToAddCategoryForm() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => CategoryForm()));
   }
 
   @override
@@ -47,9 +65,25 @@ class _RecentCategoriesState extends State<RecentCategories> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Catégories",
-            style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Catégories",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              ElevatedButton.icon(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: defaultPadding * 1.5,
+                    vertical: defaultPadding,
+                  ),
+                ),
+                onPressed: navigateToAddCategoryForm,
+                icon: Icon(Icons.add),
+                label: Text("Add New"),
+              ),
+            ],
           ),
           SizedBox(height: 20),
           SingleChildScrollView(
@@ -60,34 +94,45 @@ class _RecentCategoriesState extends State<RecentCategories> {
                 width: MediaQuery.of(context).size.width,
                 child: DataTable(
                   columns: [
-                   // DataColumn(label: Text('Visibility')),
-                    DataColumn(label: Text('Nom')),
-                   DataColumn(label: Text('Nombre total des articles')),
-                  
+                    DataColumn(label: Text('Photo de la catégorie')),
+                    DataColumn(label: Text('Nom de la catégorie')),
+                    DataColumn(label: Text('Nombre total des articles')),
+                    // DataColumn(label: Text('Actions')),
                   ],
                   rows: List<DataRow>.generate(categories.length, (index) {
                     return DataRow(cells: [
-                      
+                      DataCell(
+                        userVisibility[index]
+                            ? Image.network(
+                                categories[index]['PhotoCategorie'] ?? '',
+                                width: 50, // Adjust the width as needed
+                                height: 50, // Adjust the height as needed
+                                fit: BoxFit.cover,
+                              )
+                            : SizedBox(),
+                      ),
                       DataCell(
                         userVisibility[index]
                             ? Text(categories[index]['NomCategorie'] ?? 'N/A')
                             : SizedBox(),
                       ),
-                     /* DataCell(
+                      DataCell(
                         userVisibility[index]
-                            ? Text(categories[index]['NbreTotalArticles'] ?? 'N/A')
+                            ? Text(
+                                categories[index]['NbreTotalArticles']
+                                        .toString() ??
+                                    'N/A',
+                              )
                             : SizedBox(),
                       ),
-                     */
-                     DataCell(
-    userVisibility[index]
-        ? Text(
-            categories[index]['NbreTotalArticles']
-                .toString() ?? 'N/A',
-          )
-        : SizedBox(),
-  ),
-                     
+                      /*DataCell(
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            deleteCategory(categories[index]['_id']);
+                          },
+                        ),
+                      ),*/
                     ]);
                   }),
                 ),
